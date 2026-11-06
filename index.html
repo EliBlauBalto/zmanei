@@ -517,6 +517,7 @@ function thetaFor(t, k) {          // halachic-day position: sunrise = left hori
   if (t <= k.set) return Math.PI * (1 - (t - k.rise) / (k.set - k.rise));
   return -TW * Math.min(1, (t - k.set) / (k.rt - k.set));
 }
+const vis = (el, on) => el.toggleAttribute("hidden", !on);   // SVG elements have no .hidden property
 let STAR_DONE = false;
 function drawStars() {
   if (STAR_DONE) return; STAR_DONE = true;
@@ -562,14 +563,14 @@ function drawDial(data, rows, now, live) {
   const inArc = live && now >= k.alos && now <= k.rt;
   if (inArc) {
     const th = thetaFor(now, k), [x, y] = pt(th);
-    sun.hidden = false; sun.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+    vis(sun, true); sun.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
     $("#arcDone").setAttribute("d", arcPath(Math.PI + TW, th, 64));
-    moon.hidden = true;
+    vis(moon, false);
   } else {
-    sun.hidden = !!live || false;
-    if (!live) { const [x, y] = pt(Math.PI / 2); sun.hidden = false; sun.setAttribute("transform", `translate(${x} ${y})`); }
+    vis(sun, !live);
+    if (!live) { const [x, y] = pt(Math.PI / 2); sun.setAttribute("transform", `translate(${x} ${y})`); }
     $("#arcDone").setAttribute("d", live && now > k.rt ? arcPath(Math.PI + TW, -TW, 64) : "M0 0");
-    moon.hidden = !live;
+    vis(moon, !!live);
   }
 }
 
