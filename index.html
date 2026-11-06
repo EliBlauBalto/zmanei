@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Zmanei</title>
+<meta name="description" content="Today's zmanim on one calm screen: the next zman, a live sun dial, both MGA and GRA, Shabbos times and the daily learning.">
+<meta name="theme-color" content="#161B45" id="themeColor">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon.svg">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://www.hebcal.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;700&family=Hanken+Grotesk:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400&display=swap">
+<style>
+/* Layout: a live sky band (header, next zman, sun dial sitting on the horizon) over a calm two-column page: the day's zmanim with a sky-colored time rail, and a side column for Shabbos, the day and settings. */
+:root{
+  --paper:#F2F4F8; --surface:#FFFFFF; --ink:#151A2B; --muted:#5B637A; --faint:#878FA6;
+  --line:#E0E4EE; --accent:#3D4BB8; --accent-soft:rgba(61,75,184,.08); --sun:#C9821A; --past:#A2A8B9;
+  --r-night:#26336B; --r-dawn:#C46F86; --r-day:#4F8FD6; --r-noon:#E2A33C; --r-dusk:#D9774E;
+  --f-display:"Newsreader","Iowan Old Style","Palatino Linotype",Georgia,serif;
+  --f-he:"Frank Ruhl Libre","Times New Roman","David",serif;
+  --f-ui:"Hanken Grotesk",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --sky1:#161B45; --sky2:#5D3F7E; --sky3:#E07F55; --stars:.5;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0B0E19; --surface:#121729; --ink:#E7EAF3; --muted:#9AA1B8; --faint:#6D7491;
+  --line:#21273F; --accent:#A4AEFF; --accent-soft:rgba(164,174,255,.09); --sun:#F0B455; --past:#525A74;
+  --r-night:#5A67B8; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0B0E19; --surface:#121729; --ink:#E7EAF3; --muted:#9AA1B8; --faint:#6D7491;
+  --line:#21273F; --accent:#A4AEFF; --accent-soft:rgba(164,174,255,.09); --sun:#F0B455; --past:#525A74;
+  --r-night:#5A67B8; color-scheme:dark}
+
+/* sky phases: the hero commits to the real sky and always carries light text */
+body[data-phase="night"]{--sky1:#060A1C;--sky2:#121A42;--sky3:#24306A;--stars:1}
+body[data-phase="dawn"] {--sky1:#191F50;--sky2:#5E4A8A;--sky3:#E39886;--stars:.45}
+body[data-phase="day"]  {--sky1:#1C4A91;--sky2:#2F6DBC;--sky3:#8DBFEA;--stars:0}
+body[data-phase="dusk"] {--sky1:#141943;--sky2:#5A3D7C;--sky3:#E07F55;--stars:.5}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 15px/1.45 var(--f-ui);
+  font-feature-settings:"ss01";-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+a{color:var(--accent)}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px))}
+.he{font-family:var(--f-he);direction:rtl;unicode-bidi:isolate}
+.num{font-variant-numeric:tabular-nums lining-nums}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+
+/* ---------- sky ---------- */
+.sky{position:relative;color:#fff;overflow:hidden;isolation:isolate;
+  background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 58%,var(--sky3) 100%);
+  transition:background .8s ease;padding-top:env(safe-area-inset-top,0px)}
+.sky::after{content:"";position:absolute;inset:auto 0 0;height:1px;background:rgba(255,255,255,.35)}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:18px 6px;flex-wrap:wrap}
+.mark{display:flex;align-items:baseline;gap:10px;text-decoration:none;color:#fff}
+.mark b{font:500 22px/1 var(--f-display);letter-spacing:-.01em}
+.mark span{font:400 15px/1 var(--f-he);opacity:.7}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 14px;border-radius:999px;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);color:#fff;cursor:pointer;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);font-weight:500;font-size:14px;white-space:nowrap;
+  transition:background .15s}
+.pill:hover{background:rgba(255,255,255,.2)}
+.pill svg{width:15px;height:15px;flex:none}
+.pill.icon{width:36px;padding:0;justify-content:center}
+.datebox{position:relative}
+.datebox input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
+.datebox input::-webkit-calendar-picker-indicator{position:absolute;inset:0;width:100%;height:100%;cursor:pointer}
+
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:24px;align-items:end;padding-block:18px 0}
+.hero-text{padding-bottom:34px;min-width:0}
+.dateline{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px;margin-bottom:26px}
+.hdate{font:500 30px/1.1 var(--f-he)}
+.hdate small{font-size:.62em;opacity:.75;margin-inline-start:.35em;font-weight:400}
+.gdate{font-size:14px;opacity:.82}
+.tonight{flex-basis:100%;font-size:13px;opacity:.75}
+.tonight .he{font-size:15px}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;opacity:.75;font-weight:600}
+.next-name{font:400 clamp(26px,4.2vw,36px)/1.1 var(--f-display);margin:6px 0 2px;text-wrap:balance}
+.next-name .he{font-size:.72em;opacity:.75;margin-left:12px}
+.next-time{font:300 clamp(64px,11vw,108px)/.95 var(--f-display);letter-spacing:-.035em;display:flex;align-items:baseline;gap:8px}
+.next-time .ampm{font:500 15px/1 var(--f-ui);letter-spacing:.08em;opacity:.8;text-transform:lowercase}
+.countdown{display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-size:15px;font-weight:500;
+  padding:6px 12px 6px 10px;border-radius:999px;background:rgba(0,0,0,.18)}
+.countdown i{width:7px;height:7px;border-radius:50%;background:#F6C66B;box-shadow:0 0 0 4px rgba(246,198,107,.25);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 7px rgba(246,198,107,.05)}}
+.facts{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:18px;font-size:13px;opacity:.85}
+.facts b{font-weight:600}
+.dial{width:100%;max-width:100%;height:auto;display:block;overflow:visible}
+.dial text{font-family:var(--f-ui);fill:#fff}
+.sky-error{background:rgba(0,0,0,.25);border-radius:12px;padding:12px 14px;font-size:14px;margin-top:10px}
+.sky-error button{margin-inline-start:8px}
+
+/* ---------- page ---------- */
+main{padding-block:28px 40px}
+.grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:28px;align-items:start}
+.side{display:grid;gap:20px;min-width:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;min-width:0}
+.panel-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px 6px}
+.panel-h h2{margin:0;font:500 20px/1.2 var(--f-display);letter-spacing:-.005em}
+.panel-h h2 .he{font-size:16px;color:var(--muted);margin-left:8px;font-weight:400}
+.switch{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer;user-select:none}
+.switch input{appearance:none;-webkit-appearance:none;width:32px;height:19px;border-radius:999px;background:var(--line);position:relative;cursor:pointer;margin:0;transition:background .15s}
+.switch input::after{content:"";position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+.switch input:checked{background:var(--accent)}
+.switch input:checked::after{transform:translateX(13px)}
+
+/* zmanim list with a sky-colored time rail */
+.zlist{list-style:none;margin:0;padding:6px 8px 12px}
+.z{position:relative;display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:0 12px;padding:12px 12px 12px 6px;border-radius:12px;align-items:center}
+.z::before{content:"";position:absolute;left:16px;top:0;bottom:0;width:2px;background:var(--rail,var(--line));opacity:.35}
+.z:first-child::before{top:50%}
+.z:last-child::before{bottom:50%}
+.dot{grid-row:1/span 2;justify-self:center;width:11px;height:11px;border-radius:50%;background:var(--rail);position:relative;z-index:1;box-shadow:0 0 0 3px var(--surface)}
+.zn{min-width:0}
+.zn .en{font-weight:600;font-size:15.5px;letter-spacing:-.005em}
+.zn .he{font-size:15px;color:var(--muted);margin-left:10px}
+.zn .note{display:block;font-size:12.5px;color:var(--faint);margin-top:1px}
+.zt{text-align:right;font:400 26px/1 var(--f-display);letter-spacing:-.02em;white-space:nowrap}
+.zt .ampm{font:500 11px/1 var(--f-ui);letter-spacing:.08em;margin-inline-start:3px;color:var(--muted);text-transform:lowercase}
+.zt.dual{display:grid;gap:6px;font-size:22px}
+.op{font:600 10px/1 var(--f-ui);letter-spacing:.1em;color:var(--faint);margin-inline-end:7px;vertical-align:middle}
+.alts{grid-column:2/4;display:none;flex-wrap:wrap;gap:6px;margin-top:8px}
+.show-alts .alts{display:flex}
+.alt{font-size:12.5px;border:1px solid var(--line);border-radius:999px;padding:3px 9px;color:var(--muted);white-space:nowrap}
+.alt b{color:var(--ink);font-weight:600;margin-inline-start:4px}
+.z.past .en,.z.past .zt,.z.past .zt .ampm,.z.past .zn .he{color:var(--past)}
+.z.past .dot{background:var(--past);opacity:.6}
+.z.next{background:var(--accent-soft)}
+.z.next .dot{box-shadow:0 0 0 3px var(--surface),0 0 0 6px var(--rail)}
+.badge{display:inline-block;font:600 10.5px/1 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);
+  border:1px solid currentColor;border-radius:999px;padding:3px 7px;margin-inline-start:8px;vertical-align:2px}
+.z.special .en{color:var(--sun)}
+.nowline{display:grid;grid-template-columns:22px 1fr auto;gap:12px;align-items:center;padding:2px 12px 2px 6px;font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.06em;text-transform:uppercase}
+.nowline::before{content:"";justify-self:center;width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.nowline span:first-child{height:1px;background:var(--accent);opacity:.5}
+
+/* side cards */
+.shab{padding:4px 20px 20px}
+.parsha{font:400 italic 30px/1.1 var(--f-display);margin:2px 0 2px;letter-spacing:-.01em;text-wrap:balance}
+.parsha-he{font:500 20px/1.2 var(--f-he);color:var(--muted)}
+.kv{display:grid;gap:0;margin-top:14px}
+.kv div{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.kv dt{font-size:14px;color:var(--muted)}
+.kv dt b{display:block;color:var(--ink);font-weight:600;font-size:15px}
+.kv dd{margin:0;font:400 24px/1 var(--f-display);white-space:nowrap}
+.kv dd .ampm{font:500 11px/1 var(--f-ui);letter-spacing:.08em;margin-inline-start:3px;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding:6px 20px 4px}
+.chip{display:inline-flex;align-items:baseline;gap:8px;border-radius:10px;padding:7px 11px;background:var(--accent-soft);font-size:14px;font-weight:500}
+.chip .he{color:var(--muted);font-size:14px}
+.learn{list-style:none;margin:0;padding:6px 20px 18px;display:grid}
+.learn li{display:flex;justify-content:space-between;gap:12px;align-items:baseline;padding:10px 0;border-top:1px solid var(--line)}
+.learn li:first-child{border-top:0}
+.learn .k{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:600;white-space:nowrap}
+.learn a,.learn span.v{font-weight:600;text-decoration:none;color:var(--ink);text-align:right;min-width:0}
+.learn a:hover{color:var(--accent);text-decoration:underline}
+.learn .he{display:block;font-weight:400;color:var(--muted);font-size:14px}
+.empty{color:var(--faint);font-size:14px;padding:4px 20px 18px;margin:0}
+.settings{padding:4px 20px 18px;display:grid;gap:12px}
+.settings label.row{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:14px}
+select{background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:6px 10px;font-size:14px}
+footer{color:var(--faint);font-size:12.5px;padding-block:8px 36px;line-height:1.6}
+footer a{color:var(--muted)}
+.skel{color:transparent!important;background:var(--line);border-radius:6px;animation:sk 1.4s ease-in-out infinite}
+@keyframes sk{50%{opacity:.5}}
+
+/* location dialog */
+dialog{border:0;padding:0;border-radius:20px;width:min(520px,calc(100vw - 32px));background:var(--surface);color:var(--ink);
+  box-shadow:0 30px 80px rgba(5,8,25,.35)}
+dialog::backdrop{background:rgba(6,9,24,.5);backdrop-filter:blur(3px)}
+.dlg-h{display:flex;align-items:center;gap:10px;padding:16px 16px 10px}
+.dlg-h input{flex:1;min-width:0;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--paper);padding:0 14px;font-size:16px}
+.dlg-h button{height:44px;border:0;background:none;color:var(--muted);cursor:pointer;padding:0 6px;font-size:14px}
+.geo{display:flex;align-items:center;gap:10px;width:calc(100% - 32px);margin:0 16px 6px;padding:12px 14px;border-radius:12px;border:1px dashed var(--line);background:none;cursor:pointer;font-weight:600;color:var(--accent);text-align:left}
+.geo svg{width:16px;height:16px}
+.res{list-style:none;margin:0;padding:4px 8px 12px;max-height:min(50vh,420px);overflow:auto}
+.res li button{display:flex;width:100%;justify-content:space-between;gap:12px;text-align:left;border:0;background:none;padding:11px 10px;border-radius:10px;cursor:pointer}
+.res li button:hover,.res li button:focus-visible{background:var(--accent-soft)}
+.res .n{font-weight:600}
+.res .s{color:var(--muted);font-size:13px}
+.res .tz{color:var(--faint);font-size:12px;white-space:nowrap}
+.res .lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);font-weight:600;padding:10px 10px 4px}
+.res .msg{padding:10px;color:var(--muted);font-size:14px}
+
+@media (max-width:860px){
+  .grid{grid-template-columns:minmax(0,1fr)}
+  .hero{grid-template-columns:minmax(0,1fr);gap:0}
+  .hero-text{padding-bottom:6px}
+  .dateline{margin-bottom:18px}
+}
+@media (max-width:520px){
+  .mark span{display:none}
+  .pill{height:34px;padding:0 12px;font-size:13.5px}
+  .pill.icon{width:34px;padding:0}
+  .hdate{font-size:26px}
+  .zt{font-size:23px}
+  .zt.dual{font-size:20px}
+  .zn .he{display:block;margin:1px 0 0;text-align:left}
+  .panel-h{padding:16px 14px 4px}
+  .zlist{padding:4px 2px 8px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body data-phase="dusk">
+
+<header class="sky">
+  <div class="wrap">
+    <div class="top">
+      <a class="mark" href="/" aria-label="Zmanei home"><b>Zmanei</b><span>זמני היום</span></a>
+      <div class="controls">
+        <button class="pill" id="locBtn" type="button" aria-haspopup="dialog">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 14.5s4.5-4.3 4.5-8a4.5 4.5 0 0 0-9 0c0 3.7 4.5 8 4.5 8Z"/><circle cx="8" cy="6.5" r="1.6"/></svg>
+          <span id="locName">Cedarhurst</span>
+        </button>
+        <button class="pill icon" id="prevDay" type="button" aria-label="Previous day"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+        <label class="pill datebox" id="dateLbl"><span id="dateTxt">Today</span><input type="date" id="dateIn" aria-label="Pick a date"></label>
+        <button class="pill icon" id="nextDay" type="button" aria-label="Next day"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 3 5 5-5 5"/></svg></button>
+        <button class="pill" id="todayBtn" type="button" hidden>Today</button>
+      </div>
+    </div>
+
+    <div class="hero">
+      <div class="hero-text">
+        <div class="dateline">
+          <span class="hdate he" id="hdate"><span class="skel">כ״ו חשון</span></span>
+          <span class="gdate" id="gdate">&nbsp;</span>
+          <span class="tonight" id="tonight" hidden></span>
+        </div>
+        <div id="nextBlock">
+          <div class="eyebrow" id="nextLbl">Next zman</div>
+          <div class="next-name" id="nextName">&nbsp;</div>
+          <div class="next-time num" id="nextTime">&nbsp;</div>
+          <div class="countdown num" id="countdown" hidden><i></i><span id="cdTxt"></span></div>
+          <div class="facts num" id="facts"></div>
+        </div>
+        <div class="sky-error" id="skyErr" hidden></div>
+      </div>
+      <svg class="dial" id="dial" viewBox="0 0 400 226" role="img" aria-label="The sun's path through the halachic day">
+        <defs>
+          <radialGradient id="glow"><stop offset="0" stop-color="#FFE3A3" stop-opacity=".9"/><stop offset=".35" stop-color="#F6C66B" stop-opacity=".35"/><stop offset="1" stop-color="#F6C66B" stop-opacity="0"/></radialGradient>
+          <mask id="moonMask"><rect x="0" y="0" width="400" height="226" fill="#fff"/><circle cx="352" cy="40" r="13" fill="#000"/></mask>
+        </defs>
+        <g id="stars" style="opacity:var(--stars);transition:opacity .8s"></g>
+        <path id="arcTw" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="1.2" stroke-dasharray="1.5 4"/>
+        <path id="arcDay" fill="none" stroke="#fff" stroke-opacity=".38" stroke-width="1.2" stroke-dasharray="2 4"/>
+        <path id="arcDone" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="1.6" stroke-linecap="round"/>
+        <g id="ticks"></g>
+        <line x1="0" y1="172" x2="400" y2="172" stroke="#fff" stroke-opacity=".55" stroke-width="1"/>
+        <g id="marks"></g>
+        <g id="sun" style="transition:transform 1s ease" hidden>
+          <circle r="34" fill="url(#glow)"/>
+          <circle r="9" fill="#FFD884"/>
+        </g>
+        <g id="moon" hidden><circle cx="344" cy="44" r="13" fill="#F3EEDB" mask="url(#moonMask)"/></g>
+        <text id="lblRise" x="46" y="190" font-size="11" text-anchor="start" opacity=".85"></text>
+        <text id="lblSet" x="354" y="190" font-size="11" text-anchor="end" opacity=".85"></text>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="grid">
+    <section class="panel" aria-labelledby="zh">
+      <div class="panel-h">
+        <h2 id="zh">Zmanim <span class="he">זמנים</span></h2>
+        <label class="switch"><input type="checkbox" id="altsTgl"> All opinions</label>
+      </div>
+      <ol class="zlist" id="zlist"></ol>
+    </section>
+
+    <div class="side">
+      <section class="panel" aria-labelledby="sh">
+        <div class="panel-h"><h2 id="sh">This Shabbos <span class="he">שבת</span></h2></div>
+        <div class="shab" id="shab"><p class="empty" style="padding:0">Loading…</p></div>
+      </section>
+
+      <section class="panel" aria-labelledby="dh">
+        <div class="panel-h"><h2 id="dh">The day <span class="he">היום</span></h2></div>
+        <div class="chips" id="chips"></div>
+        <ul class="learn" id="learn"></ul>
+      </section>
+
+      <section class="panel" aria-labelledby="seth">
+        <div class="panel-h"><h2 id="seth">Settings</h2></div>
+        <div class="settings">
+          <label class="row" for="candleSel">Candle lighting before shkiah
+            <select id="candleSel">
+              <option value="auto">Local custom</option>
+              <option value="18">18 min</option><option value="20">20 min</option><option value="22">22 min</option>
+              <option value="30">30 min</option><option value="40">40 min</option>
+            </select>
+          </label>
+          <label class="row switch" for="h24Tgl" style="color:var(--ink);font-size:14px;justify-content:space-between">24-hour clock <input type="checkbox" id="h24Tgl"></label>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<footer class="wrap">
+  Times from <a href="https://www.hebcal.com/home/1663/zmanim-halachic-times-api" target="_blank" rel="noopener">Hebcal</a>, rounded to the minute. Place search by <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>.
+  Sof zman times are rounded; leave a margin and ask your rav about the shitos you follow.
+</footer>
+
+<dialog id="locDlg" aria-label="Choose a location">
+  <form method="dialog" class="dlg-h" id="locForm">
+    <input id="locQ" type="search" placeholder="City or ZIP code" autocomplete="off" spellcheck="false" aria-label="Search for a city or ZIP code">
+    <button value="cancel" type="submit">Close</button>
+  </form>
+  <button class="geo" id="geoBtn" type="button">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="5"/><path d="M8 1v2.5M8 12.5V15M1 8h2.5M12.5 8H15"/></svg>
+    Use my current location
+  </button>
+  <ul class="res" id="res"></ul>
+</dialog>
+
+<script>
+(() => {
+"use strict";
+const H = "https://www.hebcal.com";
+const $ = (s) => document.querySelector(s);
+const store = {
+  get(k, d) { try { const v = localStorage.getItem("zm:" + k); return v ? JSON.parse(v) : d; } catch { return d; } },
+  set(k, v) { try { localStorage.setItem("zm:" + k, JSON.stringify(v)); } catch {} },
+};
+const DEFAULT_LOC = { type: "geoname", id: 5111974, name: "Cedarhurst", sub: "New York, United States", tz: "America/New_York", cc: "US", lat: 40.62288, lng: -73.7243 };
+const S = {
+  loc: store.get("loc", DEFAULT_LOC),
+  date: null,                         // null = follow today in the location's time zone
+  set: Object.assign({ candle: "auto", h24: false, alts: false }, store.get("settings", {})),
+  data: null,
+  loading: false,
+};
+
+/* ---------- url state ---------- */
+(function readUrl() {
+  const p = new URLSearchParams(location.search);
+  if (p.get("g")) S.loc = { type: "geoname", id: +p.get("g"), name: p.get("n") || "", sub: "" };
+  else if (p.get("lat") && p.get("lng")) S.loc = { type: "pos", lat: +p.get("lat"), lng: +p.get("lng"), tz: p.get("tz") || browserTz(), name: p.get("n") || "", sub: "" };
+  else if (p.get("zip")) S.loc = { type: "zip", zip: p.get("zip"), name: "", sub: "" };
+  if (/^\d{4}-\d{2}-\d{2}$/.test(p.get("d") || "")) S.date = p.get("d");
+})();
+function writeUrl() {
+  const p = new URLSearchParams();
+  const L = S.loc;
+  if (L.type === "geoname") p.set("g", L.id);
+  else if (L.type === "pos") { p.set("lat", L.lat.toFixed(4)); p.set("lng", L.lng.toFixed(4)); p.set("tz", L.tz); if (L.name) p.set("n", L.name); }
+  else if (L.type === "zip") p.set("zip", L.zip);
+  if (S.date) p.set("d", S.date);
+  const q = p.toString();
+  history.replaceState(null, "", q ? "?" + q : location.pathname);
+}
+
+/* ---------- time helpers ---------- */
+function browserTz() { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"; } catch { return "UTC"; } }
+const tz = () => S.loc.tz || browserTz();
+function ymdIn(zone, d = new Date()) {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: zone, year: "numeric", month: "2-digit", day: "2-digit" }).format(d);
+}
+function addDays(iso, n) { const d = new Date(iso + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+const today = () => ymdIn(tz());
+const viewDate = () => S.date || today();
+const isToday = () => viewDate() === today();
+const ms = (iso) => (iso ? Date.parse(iso) : NaN);
+function parts(t) {
+  if (!isFinite(t)) return { hm: "–", ap: "" };
+  const f = new Intl.DateTimeFormat("en-US", { timeZone: tz(), hour: "numeric", minute: "2-digit", hour12: !S.set.h24, hourCycle: S.set.h24 ? "h23" : "h12" });
+  let hm = "", ap = "";
+  for (const p of f.formatToParts(new Date(t))) {
+    if (p.type === "dayPeriod") ap = p.value.replace(/\./g, "").toLowerCase();
+    else if (p.type === "hour" || p.type === "minute" || p.type === "literal") hm += p.value;
+  }
+  return { hm: hm.trim(), ap };
+}
+const timeHTML = (t) => { const p = parts(t); return `${p.hm}${p.ap ? `<span class="ampm">${p.ap}</span>` : ""}`; };
+const timeTxt = (t) => { const p = parts(t); return p.hm + (p.ap ? " " + p.ap : ""); };
+function dur(m) {
+  m = Math.max(0, m);
+  const s = Math.floor(m / 1000), h = Math.floor(s / 3600), mi = Math.floor((s % 3600) / 60), se = s % 60;
+  if (h) return `${h}h ${String(mi).padStart(2, "0")}m`;
+  if (mi) return `${mi}m ${String(se).padStart(2, "0")}s`;
+  return `${se}s`;
+}
+function durShort(m) { const tot = Math.round(m / 1000); const mi = Math.floor(tot / 60), se = tot % 60; return `${mi}m ${String(se).padStart(2, "0")}s`; }
+function gLabel(iso, opts) { return new Date(iso + "T12:00:00Z").toLocaleDateString("en-US", Object.assign({ timeZone: "UTC" }, opts)); }
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+/* ---------- hebcal ---------- */
+function locQ(kind) {
+  const L = S.loc;
+  if (L.type === "geoname") return (kind === "cal" ? "geo=geoname&" : "") + "geonameid=" + L.id;
+  if (L.type === "zip") return (kind === "cal" ? "geo=zip&" : "") + "zip=" + encodeURIComponent(L.zip);
+  return (kind === "cal" ? "geo=pos&" : "") + `latitude=${L.lat}&longitude=${L.lng}&tzid=${encodeURIComponent(L.tz || browserTz())}`;
+}
+async function j(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  const d = await r.json();
+  if (d && d.error) throw new Error(d.error);
+  return d;
+}
+async function load() {
+  const D = viewDate(), D1 = addDays(D, 1);
+  const b = S.set.candle === "auto" ? "" : "&b=" + S.set.candle;
+  let z;
+  try { z = await j(`${H}/zmanim?cfg=json&${locQ("z")}&start=${D}&end=${D1}`); }
+  catch (e) {
+    if (S.loc.type === "geoname" && isFinite(S.loc.lat)) {         // hebcal lacks this town: fall back to coordinates
+      S.loc = Object.assign({}, S.loc, { type: "pos" });
+      z = await j(`${H}/zmanim?cfg=json&${locQ("z")}&start=${D}&end=${D1}`);
+    } else throw e;
+  }
+  const loc = z.location || {};
+  if (loc.tzid && loc.tzid !== S.loc.tz) {
+    S.loc.tz = loc.tzid;
+    if (!S.date && today() !== D) return load();                   // the location's today differs from the browser's
+  }
+  if (loc.cc) S.loc.cc = loc.cc;
+  if (!S.loc.name && loc.city) { S.loc.name = loc.city; S.loc.sub = [loc.admin1, loc.country].filter(Boolean).join(", "); }
+  const il = S.loc.cc === "IL" ? "&i=on" : "";
+  const [y, m, d] = D.split("-");
+  const [cal, shab, h0, h1] = await Promise.all([
+    j(`${H}/hebcal?v=1&cfg=json&${locQ("cal")}&maj=on&min=on&mod=on&nx=on&mf=on&ss=on&s=on&F=on&myomi=on&nyomi=on&o=on&c=on&M=on&lg=a${b}${il}&start=${D}&end=${D}`).catch(() => null),
+    j(`${H}/shabbat?cfg=json&${locQ("shab")}&M=on&lg=a${b}${il}&gy=${y}&gm=${+m}&gd=${+d}`).catch(() => null),
+    j(`${H}/converter?cfg=json&date=${D}&g2h=1&strict=1`).catch(() => null),
+    j(`${H}/converter?cfg=json&date=${D1}&g2h=1&strict=1`).catch(() => null),
+  ]);
+  return { D, D1, z, cal, shab, h0, h1 };
+}
+
+/* ---------- model ---------- */
+function buildRows(data) {
+  const { D, D1, z, cal } = data;
+  const T = (k, day = D) => ms(z.times[k] && z.times[k][day]);
+  const sunrise = T("sunrise");
+  const R = [
+    { id: "alos", en: "Alos HaShachar", he: "עלות השחר", note: "Dawn · sun 16.1° below", t: T("alotHaShachar"),
+      alts: [["72 min", sunrise - 72 * 60000], ["Baal HaTanya", T("alosBaalHatanya")]] },
+    { id: "mish", en: "Misheyakir", he: "משיכיר", note: "Earliest tallis & tefillin · 11.5°", t: T("misheyakir"),
+      alts: [["10.2°", T("misheyakirMachmir")]] },
+    { id: "netz", en: "Netz HaChama", he: "הנץ החמה", note: "Sunrise", t: sunrise },
+    { id: "shma", en: "Sof Zman Krias Shema", he: "סוף זמן ק״ש", dual: [["MGA", T("sofZmanShmaMGA")], ["GRA", T("sofZmanShma")]],
+      alts: [["MGA 16.1°", T("sofZmanShmaMGA16Point1")], ["MGA 19.8°", T("sofZmanShmaMGA19Point8")], ["Baal HaTanya", T("sofZmanShmaBaalHatanya")]] },
+    { id: "tfila", en: "Sof Zman Tefillah", he: "סוף זמן תפילה", dual: [["MGA", T("sofZmanTfillaMGA")], ["GRA", T("sofZmanTfilla")]],
+      alts: [["MGA 16.1°", T("sofZmanTfillaMGA16Point1")], ["MGA 19.8°", T("sofZmanTfillaMGA19Point8")], ["Baal HaTanya", T("sofZmanTfilaBaalHatanya")]] },
+    { id: "chatzos", en: "Chatzos", he: "חצות היום", note: "Midday", t: T("chatzot") },
+    { id: "mg", en: "Mincha Gedolah", he: "מנחה גדולה", note: "Earliest Mincha", t: T("minchaGedola"),
+      alts: [["MGA", T("minchaGedolaMGA")], ["Baal HaTanya", T("minchaGedolaBaalHatanya")]] },
+    { id: "mk", en: "Mincha Ketanah", he: "מנחה קטנה", t: T("minchaKetana"),
+      alts: [["MGA", T("minchaKetanaMGA")], ["Baal HaTanya", T("minchaKetanaBaalHatanya")]] },
+    { id: "plag", en: "Plag HaMincha", he: "פלג המנחה", t: T("plagHaMincha"),
+      alts: [["Baal HaTanya", T("plagHaminchaBaalHatanya")]] },
+    { id: "shkia", en: "Shkiah", he: "שקיעת החמה", note: "Sunset", t: T("sunset") },
+    { id: "tzeis", en: "Tzeis HaKochavim", he: "צאת הכוכבים", note: "Nightfall · 8.5°", t: T("tzeit85deg"),
+      alts: [["7.08°", T("tzeit7083deg")], ["42 min", T("tzeit42min")], ["50 min", T("tzeit50min")], ["Baal HaTanya", T("tzaisBaalHatanya")]] },
+    { id: "rt", en: "Rabbeinu Tam", he: "רבינו תם", note: "72 minutes after shkiah", t: T("tzeit72min") },
+    { id: "cn", en: "Chatzos HaLailah", he: "חצות הלילה", note: "Midnight", t: T("chatzotNight", D1) },
+  ];
+  // Shabbos / Yom Tov / fast-day times for this date, straight from the calendar
+  for (const it of (cal && cal.items) || []) {
+    if (!it.date || it.date.slice(0, 10) !== D || it.date.length <= 10) continue;
+    const t = ms(it.date);
+    if (it.category === "candles") R.push({ id: "candles", special: 1, en: it.title_orig && !/^Candle/i.test(it.title_orig) ? it.title_orig.replace(/:.*$/, "") : "Candle Lighting", he: it.hebrew || "הדלקת נרות", note: it.memo || "", t });
+    else if (it.category === "havdalah") R.push({ id: "havdalah", special: 1, en: "Havdalah", he: "הבדלה", note: it.memo || "", t });
+    else if (it.category === "holiday" && /Candle/i.test(it.title)) R.push({ id: "menorah", special: 1, en: it.title, he: it.hebrew || "", note: "Menorah lighting", t });
+    else if (it.category === "zmanim") R.push({ id: "z" + t, special: 1, en: it.title_orig || it.title.replace(/:.*$/, ""), he: it.hebrew || "", note: it.memo || "", t });
+  }
+  for (const r of R) r.sort = r.dual ? Math.min(...r.dual.map((d) => d[1]).filter(isFinite)) : r.t;
+  return R.filter((r) => isFinite(r.sort)).sort((a, b) => a.sort - b.sort);
+}
+function events(rows) {   // each moment a person might be waiting for
+  const ev = [];
+  for (const r of rows) {
+    if (r.dual) r.dual.forEach(([op, t]) => isFinite(t) && ev.push({ r, t, label: `${r.en}`, op }));
+    else ev.push({ r, t: r.t, label: r.en });
+  }
+  return ev.sort((a, b) => a.t - b.t);
+}
+function phaseAt(now, z, D) {
+  const T = (k) => ms(z.times[k] && z.times[k][D]);
+  const a = T("alotHaShachar"), r = T("sunrise"), s = T("sunset"), n = T("tzeit72min");
+  if (now < a || now > n) return "night";
+  if (now < r) return "dawn";
+  if (now < s - 25 * 60000) return "day";
+  return "dusk";
+}
+function railColor(r, z, D) {
+  const T = (k) => ms(z.times[k] && z.times[k][D]);
+  const t = r.sort, rise = T("sunrise"), set = T("sunset"), noon = T("chatzot");
+  if (r.id === "chatzos") return "var(--r-noon)";
+  if (t < rise) return t < T("misheyakir") ? "var(--r-night)" : "var(--r-dawn)";
+  if (t <= set - 30 * 60000) return Math.abs(t - noon) < 90 * 60000 ? "var(--r-noon)" : "var(--r-day)";
+  if (t <= T("tzeit85deg") + 60000) return "var(--r-dusk)";
+  return "var(--r-night)";
+}
+
+/* ---------- dial ---------- */
+const CX = 200, HY = 172, RX = 170, RY = 136, TW = 0.3;
+const pt = (th) => [CX + RX * Math.cos(th), HY - RY * Math.sin(th)];
+function arcPath(t0, t1, steps = 48) {
+  let d = "";
+  for (let i = 0; i <= steps; i++) { const th = t0 + (t1 - t0) * (i / steps); const [x, y] = pt(th); d += (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1); }
+  return d;
+}
+function thetaFor(t, k) {          // halachic-day position: sunrise = left horizon, sunset = right
+  if (t < k.rise) return Math.PI + TW * Math.min(1, (k.rise - t) / (k.rise - k.alos));
+  if (t <= k.set) return Math.PI * (1 - (t - k.rise) / (k.set - k.rise));
+  return -TW * Math.min(1, (t - k.set) / (k.rt - k.set));
+}
+let STAR_DONE = false;
+function drawStars() {
+  if (STAR_DONE) return; STAR_DONE = true;
+  let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  let h = "";
+  for (let i = 0; i < 46; i++) {
+    const x = rnd() * 400, y = rnd() * 150, r = rnd() < 0.15 ? 1.3 : 0.7;
+    h += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="#fff" opacity="${(0.35 + rnd() * 0.6).toFixed(2)}"/>`;
+  }
+  $("#stars").innerHTML = h;
+}
+function drawDial(data, rows, now, live) {
+  drawStars();
+  const { z, D } = data;
+  const T = (k) => ms(z.times[k] && z.times[k][D]);
+  const k = { alos: T("alotHaShachar"), rise: T("sunrise"), set: T("sunset"), rt: T("tzeit72min") };
+  $("#arcDay").setAttribute("d", arcPath(Math.PI, 0));
+  $("#arcTw").setAttribute("d", arcPath(Math.PI + TW, Math.PI, 8) + arcPath(0, -TW, 8).replace(/^M/, "M"));
+  // hour ticks (sha'os zmaniyos)
+  let tk = "";
+  for (let h = 1; h < 12; h++) {
+    const th = Math.PI * (1 - h / 12), [x, y] = pt(th), nx = Math.cos(th), ny = -Math.sin(th) * (RX / RY);
+    const L = Math.hypot(nx, ny), ux = nx / L, uy = ny / L;
+    tk += `<line x1="${(x - ux * 4).toFixed(1)}" y1="${(y - uy * 4).toFixed(1)}" x2="${(x + ux * 4).toFixed(1)}" y2="${(y + uy * 4).toFixed(1)}" stroke="#fff" stroke-opacity="${h % 3 ? 0.35 : 0.7}" stroke-width="1"/>`;
+    if (h % 3 === 0) tk += `<text x="${(x - ux * 15).toFixed(1)}" y="${(y - uy * 15 + 3.5).toFixed(1)}" font-size="10" text-anchor="middle" opacity=".6" style="font-family:var(--f-he)">${["", "", "", "ג׳", "", "", "ו׳", "", "", "ט׳"][h]}</text>`;
+  }
+  $("#ticks").innerHTML = tk;
+  // markers
+  const ev = events(rows);
+  const nextEv = live ? ev.find((e) => e.t > now) : null;
+  let mk = "";
+  for (const e of ev) {
+    if (e.r.id === "cn" || !(e.t >= k.alos && e.t <= k.rt)) continue;
+    const [x, y] = pt(thetaFor(e.t, k));
+    const isNext = nextEv && e === nextEv, past = live && e.t <= now;
+    mk += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${isNext ? 4 : 2.6}" fill="${e.r.special ? "#F6C66B" : "#fff"}" opacity="${past ? 0.45 : 0.95}"/>`;
+    if (isNext) mk += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="9" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1"><animate attributeName="r" values="6;11;6" dur="2.4s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values=".8;.1;.8" dur="2.4s" repeatCount="indefinite"/></circle>`;
+  }
+  $("#marks").innerHTML = mk;
+  $("#lblRise").textContent = "Netz " + timeTxt(k.rise);
+  $("#lblSet").textContent = "Shkiah " + timeTxt(k.set);
+  const sun = $("#sun"), moon = $("#moon");
+  const inArc = live && now >= k.alos && now <= k.rt;
+  if (inArc) {
+    const th = thetaFor(now, k), [x, y] = pt(th);
+    sun.hidden = false; sun.setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+    $("#arcDone").setAttribute("d", arcPath(Math.PI + TW, th, 64));
+    moon.hidden = true;
+  } else {
+    sun.hidden = !!live || false;
+    if (!live) { const [x, y] = pt(Math.PI / 2); sun.hidden = false; sun.setAttribute("transform", `translate(${x} ${y})`); }
+    $("#arcDone").setAttribute("d", live && now > k.rt ? arcPath(Math.PI + TW, -TW, 64) : "M0 0");
+    moon.hidden = !live;
+  }
+}
+
+/* ---------- render ---------- */
+function setPhase(p) {
+  document.body.dataset.phase = p;
+  const c = { night: "#060A1C", dawn: "#191F50", day: "#1C4A91", dusk: "#141943" }[p];
+  $("#themeColor").setAttribute("content", c);
+}
+function renderStatic() {
+  const data = S.data; if (!data) return;
+  const { D, D1, z, cal, shab, h0, h1 } = data;
+  // header
+  $("#locName").textContent = S.loc.name || (z.location && z.location.city) || "Location";
+  $("#dateTxt").textContent = isToday() ? "Today" : gLabel(D, { weekday: "short", month: "short", day: "numeric" });
+  $("#dateIn").value = D;
+  $("#todayBtn").hidden = isToday();
+  // hebrew date
+  if (h0) {
+    const p = h0.heDateParts;
+    $("#hdate").innerHTML = `${esc(p.d)} ${esc(p.m)}<small>${esc(p.y)}</small>`;
+  } else $("#hdate").textContent = "";
+  $("#gdate").textContent = gLabel(D, { weekday: "long", month: "long", day: "numeric", year: "numeric" }) + (h0 ? ` · ${h0.hd} ${h0.hm} ${h0.hy}` : "");
+  // zmanim rows
+  const rows = buildRows(data);
+  data.rows = rows;
+  const ol = $("#zlist");
+  ol.classList.toggle("show-alts", !!S.set.alts);
+  ol.innerHTML = rows.map((r) => {
+    const time = r.dual
+      ? `<div class="zt dual num">${r.dual.map(([op, t]) => `<div><span class="op">${op}</span>${timeHTML(t)}</div>`).join("")}</div>`
+      : `<div class="zt num">${timeHTML(r.t)}</div>`;
+    const alts = (r.alts || []).filter((a) => isFinite(a[1]));
+    return `<li class="z${r.special ? " special" : ""}" data-id="${r.id}" style="--rail:${railColor(r, z, D)}">
+      <span class="dot" aria-hidden="true"></span>
+      <div class="zn"><span class="en">${esc(r.en)}</span><span class="he">${esc(r.he)}</span>${r.note ? `<span class="note">${esc(r.note)}</span>` : ""}</div>
+      ${time}
+      ${alts.length ? `<div class="alts">${alts.map(([n, t]) => `<span class="alt">${esc(n)}<b class="num">${timeTxt(t)}</b></span>`).join("")}</div>` : ""}
+    </li>`;
+  }).join("");
+  // facts
+  const T = (k) => ms(z.times[k] && z.times[k][D]);
+  const rise = T("sunrise"), set = T("sunset");
+  data.factsHTML = `<span>Sha'ah zmanis <b>${durShort((set - rise) / 12)}</b></span><span>MGA <b>${durShort((set - rise + 144 * 60000) / 12)}</b></span><span>Daylight <b>${dur(set - rise)}</b></span>`;
+  renderShabbos(shab);
+  renderDay(cal, D);
+  renderLive(true);
+}
+function renderShabbos(shab) {
+  const el = $("#shab");
+  if (!shab || !shab.items) { el.innerHTML = `<p class="empty" style="padding:0">Shabbos times are unavailable right now.</p>`; return; }
+  const items = shab.items;
+  const par = items.find((i) => i.category === "parashat");
+  const hol = items.filter((i) => i.category === "holiday" && !/^Erev/.test(i.title));
+  const timed = items.filter((i) => (i.category === "candles" || i.category === "havdalah") && i.date.length > 10);
+  const title = par ? par.title.replace(/^(Parashat|Parshas)\s+/, "") : hol[0] ? hol[0].title : "Shabbos";
+  const heb = par ? (par.hebrew || "").replace(/^פרשת\s+/, "") : hol[0] ? hol[0].hebrew : "";
+  const day = (iso) => new Date(iso).toLocaleDateString("en-US", { timeZone: tz(), weekday: "long", month: "short", day: "numeric" });
+  el.innerHTML = `
+    <div class="parsha">${esc(title)}</div>
+    ${heb ? `<div class="parsha-he he">${esc(heb)}</div>` : ""}
+    <dl class="kv">
+      ${timed.map((i) => `<div><dt><b>${i.category === "candles" ? "Candle lighting" : "Havdalah"}</b>${esc(day(i.date))}${i.memo && i.category === "candles" && !/^Parash|^Parsh/.test(i.memo) ? " · " + esc(i.memo) : ""}</dt><dd class="num">${timeHTML(ms(i.date))}</dd></div>`).join("")}
+    </dl>
+    ${hol.length && par ? `<div style="margin-top:12px;font-size:13.5px;color:var(--muted)">${hol.map((h) => esc(h.title)).join(" · ")}</div>` : ""}`;
+}
+function renderDay(cal, D) {
+  const items = ((cal && cal.items) || []).filter((i) => i.date.slice(0, 10) === D);
+  const chipCats = new Set(["holiday", "roshchodesh", "omer", "mevarchim", "modern", "parashat"]);
+  const chips = items.filter((i) => chipCats.has(i.category));
+  $("#chips").innerHTML = chips.length
+    ? chips.map((i) => `<span class="chip">${esc(i.title)}${i.hebrew ? `<span class="he">${esc(i.hebrew)}</span>` : ""}</span>`).join("")
+    : `<span class="chip" style="background:none;padding-left:0;color:var(--faint);font-weight:400">An ordinary weekday — no holidays or special days.</span>`;
+  const L = [["dafyomi", "Daf Yomi"], ["mishnayomi", "Mishnah Yomi"], ["nachyomi", "Nach Yomi"]];
+  const rows = L.map(([cat, k]) => {
+    const i = items.find((x) => x.category === cat);
+    if (!i) return "";
+    const v = `${esc(i.title)}${i.hebrew ? `<span class="he">${esc(i.hebrew)}</span>` : ""}`;
+    return `<li><span class="k">${k}</span>${i.link ? `<a href="${esc(i.link)}" target="_blank" rel="noopener">${v}</a>` : `<span class="v">${v}</span>`}</li>`;
+  }).join("");
+  $("#learn").innerHTML = rows || `<li><span class="k">Learning</span><span class="v" style="font-weight:400;color:var(--faint)">Unavailable</span></li>`;
+}
+let lastNextKey = "";
+function renderLive(force) {
+  const data = S.data; if (!data || !data.rows) return;
+  const { D, z, h1 } = data;
+  const now = Date.now();
+  const live = isToday();
+  const T = (k, day = D) => ms(z.times[k] && z.times[k][day]);
+  setPhase(live ? phaseAt(now, z, D) : "day");
+  const ev = events(data.rows);
+  let nx = live ? ev.find((e) => e.t > now) : null;
+  if (live && !nx) { const t = T("alotHaShachar", data.D1); if (isFinite(t)) nx = { t, label: "Alos HaShachar", r: { he: "עלות השחר" }, tomorrow: 1 }; }
+  // tonight's Hebrew date once shkiah has passed
+  const tn = $("#tonight");
+  if (live && h1 && now > T("sunset")) { const p = h1.heDateParts; tn.hidden = false; tn.innerHTML = `From shkiah tonight: <span class="he">${esc(p.d)} ${esc(p.m)}</span> · ${h1.hd} ${esc(h1.hm)}`; }
+  else tn.hidden = true;
+  // hero
+  if (live && nx) {
+    $("#nextLbl").textContent = nx.tomorrow ? "Next zman · tomorrow" : "Next zman";
+    $("#nextName").innerHTML = `${esc(nx.label)}${nx.op ? ` <span style="opacity:.7">(${nx.op})</span>` : ""}<span class="he">${esc(nx.r.he || "")}</span>`;
+    $("#nextTime").innerHTML = timeHTML(nx.t);
+    $("#countdown").hidden = false;
+    $("#cdTxt").textContent = "in " + dur(nx.t - now);
+  } else if (!live) {
+    const rise = T("sunrise"), set = T("sunset");
+    $("#nextLbl").textContent = gLabel(D, { weekday: "long" });
+    $("#nextName").innerHTML = `Shkiah<span class="he">שקיעה</span>`;
+    $("#nextTime").innerHTML = timeHTML(set);
+    $("#countdown").hidden = true;
+  }
+  $("#facts").innerHTML = data.factsHTML || "";
+  // rows: past / next / now line
+  const key = (nx ? nx.t + (nx.op || "") : "x") + live;
+  if (force || key !== lastNextKey) {
+    lastNextKey = key;
+    const ol = $("#zlist");
+    ol.querySelectorAll(".nowline").forEach((n) => n.remove());
+    let lastPast = null;
+    for (const li of ol.children) {
+      const r = data.rows.find((x) => x.id === li.dataset.id);
+      if (!r) continue;
+      const end = r.dual ? Math.max(...r.dual.map((d) => d[1])) : r.t;
+      const past = live && end <= now;
+      li.classList.toggle("past", past);
+      const isNext = live && nx && nx.r === r;
+      li.classList.toggle("next", !!isNext);
+      const en = li.querySelector(".en");
+      en.querySelectorAll(".badge").forEach((b) => b.remove());
+      if (isNext) en.insertAdjacentHTML("beforeend", `<span class="badge">Next</span>`);
+      if (past) lastPast = li;
+    }
+    if (live && lastPast && lastPast.nextElementSibling) {
+      lastPast.insertAdjacentHTML("afterend", `<li class="nowline" aria-hidden="true"><span></span><span>Now</span><span></span></li>`);
+    }
+    drawDial(data, data.rows, now, live);
+  } else if (live && document.visibilityState === "visible") {
+    // keep the sun moving between zmanim
+    const k = { alos: T("alotHaShachar"), rise: T("sunrise"), set: T("sunset"), rt: T("tzeit72min") };
+    if (now >= k.alos && now <= k.rt) {
+      const th = thetaFor(now, k), [x, y] = pt(th);
+      $("#sun").setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+      $("#arcDone").setAttribute("d", arcPath(Math.PI + TW, th, 64));
+    }
+  }
+}
+
+/* ---------- flow ---------- */
+let reqId = 0;
+async function refresh() {
+  const id = ++reqId;
+  $("#skyErr").hidden = true;
+  document.body.style.cursor = "progress";
+  try {
+    const data = await load();
+    if (id !== reqId) return;
+    S.data = data;
+    store.set("loc", S.loc);
+    writeUrl();
+    renderStatic();
+    document.title = `Zmanei · ${S.loc.name || "Zmanim"}`;
+  } catch (e) {
+    if (id !== reqId) return;
+    const el = $("#skyErr");
+    el.hidden = false;
+    el.innerHTML = `Couldn't load zmanim from Hebcal (${esc(e.message)}). Check your connection, then <button class="pill" type="button" id="retry">Try again</button>`;
+    $("#retry").onclick = refresh;
+  } finally { if (id === reqId) document.body.style.cursor = ""; }
+}
+function setDate(d) { S.date = d && d !== today() ? d : null; refresh(); }
+$("#prevDay").onclick = () => setDate(addDays(viewDate(), -1));
+$("#nextDay").onclick = () => setDate(addDays(viewDate(), 1));
+$("#todayBtn").onclick = () => setDate(null);
+$("#dateIn").onchange = (e) => e.target.value && setDate(e.target.value);
+$("#altsTgl").checked = !!S.set.alts;
+$("#altsTgl").onchange = (e) => { S.set.alts = e.target.checked; store.set("settings", S.set); $("#zlist").classList.toggle("show-alts", S.set.alts); };
+$("#h24Tgl").checked = !!S.set.h24;
+$("#h24Tgl").onchange = (e) => { S.set.h24 = e.target.checked; store.set("settings", S.set); renderStatic(); };
+$("#candleSel").value = S.set.candle;
+$("#candleSel").onchange = (e) => { S.set.candle = e.target.value; store.set("settings", S.set); refresh(); };
+
+setInterval(() => {
+  if (!S.data) return;
+  if (!S.date && S.data.D !== today()) { refresh(); return; }     // past midnight: roll over to the new day
+  renderLive(false);
+}, 1000);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && S.data) { if (!S.date && S.data.D !== today()) refresh(); else renderLive(true); } });
+
+/* ---------- location picker ---------- */
+const dlg = $("#locDlg"), q = $("#locQ"), res = $("#res");
+const recents = () => store.get("recent", []);
+function pushRecent(L) {
+  const key = (x) => x.type + (x.id || x.zip || `${x.lat},${x.lng}`);
+  const list = [L].concat(recents().filter((x) => key(x) !== key(L))).slice(0, 6);
+  store.set("recent", list);
+}
+function showRecents() {
+  const list = recents();
+  res.innerHTML = list.length
+    ? `<li class="lbl">Recent</li>` + list.map((L, i) => `<li><button type="button" data-rec="${i}"><span><span class="n">${esc(L.name)}</span><br><span class="s">${esc(L.sub || "")}</span></span><span class="tz">${esc(L.tz || "")}</span></button></li>`).join("")
+    : `<li class="msg">Type a city, town or US ZIP code.</li>`;
+}
+let found = [];
+$("#locBtn").onclick = () => { q.value = ""; showRecents(); dlg.showModal(); setTimeout(() => q.focus(), 30); };
+dlg.addEventListener("click", (e) => { if (e.target === dlg) dlg.close(); });
+let tmr = 0, sId = 0;
+q.addEventListener("input", () => {
+  clearTimeout(tmr);
+  const v = q.value.trim();
+  if (!v) { showRecents(); return; }
+  tmr = setTimeout(() => search(v), 220);
+});
+async function search(v) {
+  const id = ++sId;
+  if (/^\d{5}$/.test(v)) {
+    found = [{ type: "zip", zip: v, name: "ZIP " + v, sub: "United States" }];
+    res.innerHTML = `<li><button type="button" data-i="0"><span><span class="n">ZIP ${esc(v)}</span><br><span class="s">United States</span></span></button></li>`;
+    return;
+  }
+  if (v.length < 2) return;
+  res.innerHTML = `<li class="msg">Searching…</li>`;
+  try {
+    const d = await j(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(v)}&count=8&language=en&format=json`);
+    if (id !== sId) return;
+    found = (d.results || []).map((r) => ({ type: "geoname", id: r.id, name: r.name, sub: [r.admin1, r.country].filter(Boolean).join(", "), tz: r.timezone, cc: r.country_code, lat: r.latitude, lng: r.longitude }));
+    res.innerHTML = found.length
+      ? found.map((L, i) => `<li><button type="button" data-i="${i}"><span><span class="n">${esc(L.name)}</span><br><span class="s">${esc(L.sub)}</span></span><span class="tz">${esc((L.tz || "").replace(/_/g, " "))}</span></button></li>`).join("")
+      : `<li class="msg">No places match “${esc(v)}”. Try the nearest larger town, or a ZIP code.</li>`;
+  } catch {
+    if (id === sId) res.innerHTML = `<li class="msg">Search is unavailable right now. Try a US ZIP code, or use your current location.</li>`;
+  }
+}
+res.addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  const L = b.dataset.rec != null ? recents()[+b.dataset.rec] : found[+b.dataset.i];
+  if (!L) return;
+  choose(Object.assign({}, L));
+});
+function choose(L) {
+  if (L.type === "zip") L.name = ""; // hebcal names the town
+  S.loc = L; S.date = null; dlg.close();
+  $("#locName").textContent = L.name || "…";
+  refresh().then(() => { if (S.loc.name) pushRecent(S.loc); });
+}
+$("#geoBtn").onclick = () => {
+  if (!navigator.geolocation) { res.innerHTML = `<li class="msg">This browser can't share its location. Search for your city instead.</li>`; return; }
+  res.innerHTML = `<li class="msg">Finding you…</li>`;
+  navigator.geolocation.getCurrentPosition(async (p) => {
+    const lat = +p.coords.latitude.toFixed(4), lng = +p.coords.longitude.toFixed(4);
+    const L = { type: "pos", lat, lng, tz: browserTz(), name: "My location", sub: `${lat.toFixed(2)}, ${lng.toFixed(2)}` };
+    try {
+      const g = await j(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`);
+      L.name = g.city || g.locality || L.name; L.sub = [g.principalSubdivision, g.countryName].filter(Boolean).join(", ") || L.sub; L.cc = g.countryCode;
+    } catch {}
+    choose(L);
+  }, (err) => {
+    res.innerHTML = `<li class="msg">${err.code === 1 ? "Location permission was declined. Search for your city instead." : "Couldn't get your location. Search for your city instead."}</li>`;
+  }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 });
+};
+
+refresh();
+})();
+</script>
+</body>
+</html>
