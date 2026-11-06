@@ -48,7 +48,7 @@ body[data-phase="day"]{--glow:rgba(255,226,170,.20)}
 body{--earth1:#2E3346;--earth2:#12141E;--hglow:rgba(255,236,200,.3)}
 body[data-phase="night"]{--earth1:#121624;--earth2:#05070D;--hglow:rgba(130,150,230,.16)}
 body[data-phase="dawn"]{--earth1:#3A3040;--earth2:#141018;--hglow:rgba(255,172,128,.55)}
-body[data-phase="day"]{--earth1:#5C5540;--earth2:#3A3226;--hglow:rgba(255,240,210,.32);--ridge:.8}
+body[data-phase="day"]{--earth1:#6A5036;--earth2:#3A281C;--hglow:rgba(255,240,210,.32);--ridge:.8}
 body[data-phase="dusk"]{--earth1:#3C2E36;--earth2:#150F15;--hglow:rgba(255,160,110,.55)}
 body[data-phase="still"]{--earth1:#30364D;--earth2:#12152A;--hglow:rgba(200,210,255,.18)}
 body[data-phase="dawn"],body[data-phase="dusk"]{--glow:rgba(255,178,120,.26)}
@@ -91,9 +91,9 @@ a{color:var(--accent)}
 @media (min-width:1000px){
   .app{display:grid;grid-template-columns:minmax(440px,46%) minmax(0,1fr)}
   .sky{position:sticky;top:0;height:100vh;height:100dvh;display:flex;flex-direction:column}
-  .stage-wrap{flex:1 1 auto;display:flex;flex-direction:column;justify-content:flex-end;padding:2vh 0 4vh}
+  .stage-wrap{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center;padding:14vh 0 0}
   .app{background:linear-gradient(180deg,color-mix(in srgb,var(--sky2) 9%,var(--paper)),var(--paper) 380px)}
-  .stage{max-width:min(720px,calc((100dvh - 300px)*1.45))}
+  .sky .stage{max-width:min(900px,calc((100dvh - 280px)*1.45))}
 }
 .bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:12px;min-height:56px}
 .mark{display:flex;align-items:baseline;gap:9px;text-decoration:none;color:#fff;flex:none}
@@ -136,12 +136,12 @@ a{color:var(--accent)}
 .dial .hit:focus-visible{stroke:#fff;stroke-width:1.6}
 .dial .lbl{font-size:11.5px;font-weight:600;paint-order:stroke;stroke:rgba(8,12,40,.28);stroke-width:2.4px;stroke-linejoin:round}
 .core{position:absolute;left:14%;right:14%;top:26%;text-align:center;pointer-events:none}
-.core .eyebrow{font:700 clamp(10px,2.5cqw,12px)/1.2 var(--f-ui);letter-spacing:.16em;text-transform:uppercase;opacity:.82}
-.core .nm{font:400 clamp(17px,5.1cqw,29px)/1.15 var(--f-display);margin-top:.4em;text-wrap:balance;max-height:2.4em;overflow:hidden}
+.core .eyebrow{font:700 clamp(10px,2.4cqw,14px)/1.2 var(--f-ui);letter-spacing:.16em;text-transform:uppercase;opacity:.82}
+.core .nm{font:400 clamp(17px,5.1cqw,40px)/1.15 var(--f-display);margin-top:.4em;text-wrap:balance;max-height:2.4em;overflow:hidden}
 .core .nm .he{font:400 .78em/1 var(--f-he);opacity:.78;margin-left:.45em}
 .core .nm .op{color:#fff;opacity:.9;font-size:.5em;letter-spacing:.1em;vertical-align:.35em;margin-left:.3em}
-.core .tm{font:300 clamp(46px,16.5cqw,98px)/1 var(--f-display);letter-spacing:-.035em;margin-top:.1em}
-.core .tm .ampm{font:600 clamp(10.5px,2.7cqw,14px)/1 var(--f-ui);letter-spacing:.08em;margin-left:.35em;opacity:.82}
+.core .tm{font:300 clamp(46px,16.5cqw,136px)/1 var(--f-display);letter-spacing:-.035em;margin-top:.1em}
+.core .tm .ampm{font:600 clamp(10.5px,2.7cqw,19px)/1 var(--f-ui);letter-spacing:.08em;margin-left:.35em;opacity:.82}
 .core.swap,.zlist.swap{animation:swap .5s cubic-bezier(.2,.7,.2,1)}
 .core,.zlist{transition:opacity .16s,transform .16s}
 .core.out,.zlist.out{opacity:.25}
@@ -183,7 +183,7 @@ button.hchip svg{width:14px;height:14px;align-self:center}
 
 /* ---------- content ---------- */
 main{padding:22px max(14px,env(safe-area-inset-left,0px)) 28px;max-width:780px;margin:0 auto;display:grid;gap:18px;min-width:0;align-content:start;container-type:inline-size}
-@media (min-width:1000px){main{padding:40px clamp(24px,4vw,56px) 40px;max-width:900px;margin:0;gap:22px}}
+@media (min-width:1000px){main{padding:40px clamp(24px,4vw,56px) 40px;width:100%;max-width:960px;margin:0 auto;gap:22px}}
 .cols{display:grid;gap:18px;align-items:start}
 @container (min-width:620px){.cols{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);min-width:0}
@@ -664,7 +664,7 @@ details.how p{margin:8px 0 0;font-size:13px;color:var(--faint);line-height:1.65}
 
     <section class="fly-step" id="stepResults" hidden>
       <div class="summary"><div class="t" id="fSum" tabindex="-1"></div><button class="btn ghost" id="fEdit" type="button">Edit</button></div>
-      <div class="zonebar"><span class="l" id="zoneL">All times below in</span><span class="seg" id="zoneSeg" role="group" aria-labelledby="zoneL"></span></div>
+      <div class="zonebar"><span class="l" id="zoneL">Primary clock</span><span class="seg" id="zoneSeg" role="group" aria-labelledby="zoneL"></span></div>
       <div id="flyOut" style="display:grid;gap:18px"></div>
       <div class="status">
         <div class="st" id="fStat"><i></i><span></span></div>
@@ -1794,6 +1794,8 @@ function flyZoneSeg() {
   $("#zoneSeg").innerHTML = opts.map(([k, l]) => `<button type="button" data-z="${k}" aria-pressed="${cur === k}">${esc(l)}</button>`).join("");
 }
 const GPS_UI = !matchMedia("(hover: hover) and (pointer: fine)").matches;
+const stamp = (t, zn) => `${timeTxt(t, zn)} ${tzAbbr(zn, t)}`;                    // "10:48 pm Israel Time", the zone as it reads at that moment
+const dated = (t, zn) => `${stamp(t, zn)}, ${dayName(t, zn)}`;                        // "... , Fri, Nov 6"
 const opTag = (op) => ({ Plane: "From the plane", Ground: "On the ground" }[op] || op);
 function flyRender() {
   const step = flyStep();
@@ -1802,7 +1804,7 @@ function flyRender() {
   flyCalc(false);
   const P = flyPath, now = Date.now(), zone = flyZone(), flat = flyFlat();
   const wd = (t, zn) => new Date(t).toLocaleDateString("en-US", { timeZone: zn, weekday: "short" });
-  $("#fSum").innerHTML = `<b>${esc(F.q)} · ${esc(apCode(F.o))} → ${esc(apCode(F.d))}</b>${timeTxt(P.dep, F.o.tz)}, ${esc(dayName(P.dep, F.o.tz))} → ${timeTxt(P.arr, F.d.tz)}, ${esc(dayName(P.arr, F.d.tz))}${F.useEst && !P.eta ? " (estimated)" : ""} · each airport's local time`;
+  $("#fSum").innerHTML = `<b>${esc(F.q)} · ${esc(apCode(F.o))} → ${esc(apCode(F.d))}</b>${esc(dated(P.dep, F.o.tz))} → ${esc(dated(P.arr, F.d.tz))}${F.useEst && !P.eta ? " (estimated)" : ""}`;
   flyDlg.style.setProperty("--shh", $(".sh-h", flyDlg).offsetHeight + "px");
   const focusZ = document.activeElement && document.activeElement.dataset && document.activeElement.dataset.z;
   flyZoneSeg();
@@ -1824,7 +1826,7 @@ function flyRender() {
       const pl = nx.op === "Plane" ? nx.t : twin[1], gr = nx.op === "Ground" ? nx.t : twin[1], m = Math.round(Math.abs(pl - gr) / 6e4);
       const sets = nx.r.id === "shkia";
       const dayDiff = dayName(twin[1], zone) !== dayName(nx.t, zone) ? `, ${dayName(twin[1], zone)}` : "";
-      pairTxt = `<div class="pair">${esc(opTag(twin[0]))}: <b class="num">${timeTxt(twin[1], zone)}</b>${esc(dayDiff)} <small class="oc">· ${esc(other.city)} ${timeTxt(twin[1], other.tz)}, ${esc(dayName(twin[1], other.tz))}</small><span>At ${fmtAlt(at.alt)} you see the sun ${sets ? "set" : "rise"} ${m} minute${m === 1 ? "" : "s"} ${sets ? "later" : "earlier"} than the ground below.</span></div>`;
+      pairTxt = `<div class="pair">${esc(opTag(twin[0]))}: <b class="num">${timeTxt(twin[1], zone)}</b> <small class="oc">${esc(tzAbbr(zone, twin[1]))}${esc(dayDiff)} · ${esc(other.city)} ${esc(stamp(twin[1], other.tz))}</small><span>${m} minute${m === 1 ? "" : "s"} ${sets ? "later" : "earlier"} than the ground below: at ${fmtAlt(at.alt)} the horizon dips.</span></div>`;
     }
     hero = `<div class="fly-hero" style="--h1:${c[0]};--h2:${c[1]}">
       <div class="fh-top">
@@ -1832,12 +1834,12 @@ function flyRender() {
         <div class="nm">${esc(nx.r.en)}<span class="he" lang="he">${esc(nx.r.he)}</span></div>
         ${nx.op ? `<span class="tag">${esc(opTag(nx.op))}</span>` : ""}
         <div class="tm num">${timeHTML(nx.t, zone)}<span class="zn2">${esc(tzAbbr(zone, nx.t))} · ${esc(dayName(nx.t, zone))}</span></div>
-        <div class="oc">${esc(other.city)}: ${timeTxt(nx.t, other.tz)} · ${esc(tzAbbr(other.tz, nx.t))} · ${esc(dayName(nx.t, other.tz))}</div>
+        <div class="oc">${esc(other.city)} ${esc(dated(nx.t, other.tz))}</div>
+        <div class="cd2 num"><i aria-hidden="true"></i><span id="fCd">in ${dur(nx.t - now)}</span></div>
       </div>
       <div class="fh-bot">
         ${pairTxt}
-        <div class="cd2 num"><i aria-hidden="true"></i><span id="fCd">in ${dur(nx.t - now)}</span></div>
-        <div class="where">At ${esc(SHORT[nx.r.id] || nx.r.en)}: over ${esc(where(at))} at ${fmtAlt(at.alt)} · ${durH(nx.t - P.dep)} in · ${Math.round(gcKm(at, F.d) * 0.621371).toLocaleString("en-US")} mi to go</div>
+        <div class="where">At ${esc((SHORT[nx.r.id] || nx.r.en).toLowerCase())}${nx.op === "Ground" ? " on the ground" : nx.op === "Plane" ? " from the plane" : ""}: over ${esc(where(at))} at ${fmtAlt(at.alt)} · ${durH(nx.t - P.dep)} in · ${Math.round(gcKm(at, F.d) * 0.621371).toLocaleString("en-US")} mi to go</div>
       </div>
       <canvas class="globe" id="globe" role="img" aria-label="Globe showing the route, day and night at ${timeTxt(nx.t, zone)}, and where each zman happens"></canvas>
     </div>`;
@@ -1853,9 +1855,9 @@ function flyRender() {
     win("Shacharis", "שחרית", s0, "misheyakir", e, "sof zman tefillah (GRA)", isFinite(m) ? `MGA: by ${timeTxt(m, zone)}` : ""); }
   { const s0 = first("mg"), e = first("shkia", "Ground", isFinite(s0) ? s0 : -Infinity); win("Mincha", "מנחה", s0, "mincha gedolah", e, "shkiah on the ground"); }
   { const s0 = first("tzeis"); win("Maariv", "מעריב", s0, "tzeis", NaN, ""); }
-  const TT = (t) => timeHTML(t, zone), DD = (t) => `<span class="wd">${esc(dayName(t, zone))}</span>`;
+  const TT = (t) => timeHTML(t, zone), DD = (t) => `<span class="wd">${esc(tzAbbr(zone, t))} · ${esc(dayName(t, zone))}</span>`;
   const rangeH = (a2, b2) => (dayName(a2, zone) === dayName(b2, zone) ? `${TT(a2)} – ${TT(b2)}${DD(b2)}` : `${TT(a2)}${DD(a2)} – ${TT(b2)}${DD(b2)}`);
-  const rangeT = (a2, b2, zn) => (dayName(a2, zn) === dayName(b2, zn) ? `${timeTxt(a2, zn)} – ${timeTxt(b2, zn)}, ${dayName(b2, zn)}` : `${timeTxt(a2, zn)}, ${dayName(a2, zn)} – ${timeTxt(b2, zn)}, ${dayName(b2, zn)}`);
+  const rangeT = (a2, b2, zn) => (dayName(a2, zn) === dayName(b2, zn) ? `${timeTxt(a2, zn)} – ${dated(b2, zn)}` : `${dated(a2, zn)} – ${dated(b2, zn)}`);
   for (const w of W) {
     w.state = isFinite(w.e) && w.e <= now ? "done" : (isFinite(w.s) ? w.s <= now : now < (isFinite(w.e) ? w.e : Infinity)) ? "open" : "next";
     w.ord = { open: 0, next: 1, done: 2 }[w.state];
@@ -1865,8 +1867,8 @@ function flyRender() {
     const hasS = isFinite(w.s), hasE = isFinite(w.e);
     const v = hasS && hasE ? rangeH(w.s, w.e) : hasS ? `from ${TT(w.s)}${DD(w.s)}` : w.state === "open" ? `now – ${TT(w.e)}${DD(w.e)}` : `until ${TT(w.e)}${DD(w.e)}`;
     const sub = hasS && hasE ? `${w.sl} to ${w.el}` : hasS ? `${w.sl}${w.k === "Maariv" ? "" : " · continues after landing"}` : `open from before takeoff · ends at ${w.el}`;
-    const conv = (t) => `${timeTxt(t, other.tz)}, ${dayName(t, other.tz)}`;
-    const alt = `${other.city}: ${hasS && hasE ? rangeT(w.s, w.e, other.tz) : hasS ? `from ${conv(w.s)}` : `until ${conv(w.e)}`}`;
+    const conv = (t) => dated(t, other.tz);
+    const alt = `${other.city} ${hasS && hasE ? rangeT(w.s, w.e, other.tz) : hasS ? `from ${conv(w.s)}` : `until ${conv(w.e)}`}`;
     return `<div class="win ${w.state}"><div class="k">${w.k}<span class="he" lang="he">${w.he}</span>${w.state === "open" ? '<span class="now">Open now</span>' : ""}</div><div class="v num">${v}</div><div class="s">${esc(sub)}${w.extra ? " · " + esc(w.extra) : ""}</div><div class="s alt2">${esc(alt)}</div></div>`;
   };
   const lead = W.filter((w) => w.state === "open");
@@ -1885,7 +1887,7 @@ function flyRender() {
   for (const r of order) { const txt = short[r.id]; if (txt) labels += `<span class="tl-l" data-x="${X(r.sort).toFixed(3)}">${txt}</span>`; }
   const nowMark = now > P.dep && now < P.arr ? `<b class="tl-now" style="left:${X(now).toFixed(2)}%"></b>` : "";
   const tl = `<div class="tl" aria-hidden="true"><div class="tl-bar" style="background:linear-gradient(90deg,${stops.join(",")})">${marks}${nowMark}</div>${labels}
-    <div class="tl-ends"><span><b>${esc(apCode(F.o))}</b> ${timeTxt(P.dep, F.o.tz)}, ${esc(dayName(P.dep, F.o.tz))}</span><span>${durH(span)}</span><span><b>${esc(apCode(F.d))}</b> ${timeTxt(P.arr, F.d.tz)}, ${esc(dayName(P.arr, F.d.tz))}</span></div></div>`;
+    <div class="tl-ends"><span><b>${esc(apCode(F.o))}</b> ${esc(dated(P.dep, F.o.tz))}</span><span>${durH(span)}</span><span><b>${esc(apCode(F.d))}</b> ${esc(dated(P.arr, F.d.tz))}</span></div></div>`;
   // the list, with a break wherever the date changes in the chosen clock
   const nk = nx ? nx.r : null;
   let lastDay = "";
@@ -1894,10 +1896,9 @@ function flyRender() {
     const past = end <= now, morning = r.at && solar(r.sort, r.at.lat, r.at.lng).ha < 0;
     const dn = dayName(r.sort, zone), sep = dn !== lastDay ? `<li class="dsep">${esc(dn)}</li>` : "";
     lastDay = dn;
-    const odate = (t) => `, ${dayName(t, other.tz)}`;
-    const oth = `<span class="alt2">${esc(apCode(other))} ${timeTxt(r.sort, other.tz)}${esc(odate(r.sort))}</span>`;
+    const oth = `<span class="alt2">${esc(apCode(other))} ${esc(dated(r.sort, other.tz))}</span>`;
     const time = r.dual
-      ? `<div class="zt dual num">${r.dual.filter((x) => isFinite(x[1])).sort((a2, b2) => (a2[0] === "Plane") - (b2[0] === "Plane")).map(([op, t]) => `<div><span class="op">${op}</span>${timeHTML(t, zone)}${dayName(t, zone) !== dn ? `<span class="wd">${esc(dayName(t, zone))}</span>` : ""}<span class="alt2 in">${esc(apCode(other))} ${timeTxt(t, other.tz)}${esc(odate(t))}</span></div>`).join("")}</div>`
+      ? `<div class="zt dual num">${r.dual.filter((x) => isFinite(x[1])).sort((a2, b2) => (a2[0] === "Plane") - (b2[0] === "Plane")).map(([op, t]) => `<div><span class="op">${op}</span>${timeHTML(t, zone)}${dayName(t, zone) !== dn ? `<span class="wd">${esc(dayName(t, zone))}</span>` : ""}<span class="alt2 in">${esc(apCode(other))} ${esc(dated(t, other.tz))}</span></div>`).join("")}</div>`
       : `<div class="zt num">${timeHTML(r.t, zone)}${oth}</div>`;
     const note = [r.note, `over ${where(r.at)}`, fmtAlt(r.at.alt)].filter(Boolean).join(" · ");
     return `${sep}<li class="z${past ? " past" : ""}${r === nk ? " next" : ""}" style="--rail:${skyCol(r.sunEl, morning)}"><span class="dot" aria-hidden="true"></span>
@@ -2055,7 +2056,10 @@ function drawGlobe(cv, P, tSun, nx) {
       }
     }
     g.textAlign = al;
+    const under = planeAt && Math.hypot(planeAt[0] - (al === "left" ? lx + tw / 2 : al === "right" ? lx - tw / 2 : lx), planeAt[1] - ly) < 18;
+    g.globalAlpha = under ? 0.3 : 1;
     g.fillStyle = "rgba(255,255,255,.95)"; g.shadowColor = "rgba(0,0,0,.5)"; g.shadowBlur = 3; g.fillText(apCode(a), lx, ly); g.shadowBlur = 0;
+    g.globalAlpha = 1;
   }
   if (planeAt) {                       // a small plane, pointing along the route, with a halo
     const [x, y] = planeAt, q2 = P.posAt(Math.min(P.arr, now + 20 * MIN)), [x2, y2] = proj(q2.lat, q2.lng);
