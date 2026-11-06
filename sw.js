@@ -1,6 +1,6 @@
 // Network first with the cache as a fallback: always fresh online, and the last-seen page and times still open on a plane.
 // Slow hosts (plane wi-fi can stall a request for 30 s) get 3.5 s before a cached copy is used.
-const CACHE = "zmanei-v4";
+const CACHE = "zmanei-v5";
 const SHELL = ["./", "./index.html", "./icon.svg", "./apple-touch-icon.png", "./manifest.webmanifest"];
 const SLOW = new Set(["www.hebcal.com", "api.open-meteo.com", "geocoding-api.open-meteo.com"]);
 

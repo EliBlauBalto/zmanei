@@ -21,7 +21,7 @@
 :root{
   --paper:#F3F4F8; --surface:#FFFFFF; --ink:#12172A; --muted:#4D556D; --faint:#626A82;
   --line:#E1E4ED; --line2:#ECEEF4; --accent:#3443B0; --accent-soft:rgba(52,67,176,.075); --accent-ink:#2A388F;
-  --sun:#97600D; --ok:#1E8A55; --err:#B3261E;
+  --sun:#97600D; --ok:#1E8A55; --err:#B3261E; --ctl:#8A92A8;
   --r-night:#2B3875; --r-dawn:#C0607E; --r-day:#3F84D2; --r-noon:#D99A2B; --r-dusk:#D46A40;
   --shadow:0 1px 2px rgba(16,22,48,.04),0 10px 30px -12px rgba(16,22,48,.10);
   --f-display:"Newsreader","Iowan Old Style","Palatino Linotype",Georgia,serif;
@@ -33,17 +33,19 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --paper:#090C17; --surface:#10152A; --ink:#E9ECF5; --muted:#A6ADC4; --faint:#8E95AD;
   --line:#1F2641; --line2:#181E36; --accent:#AAB4FF; --accent-soft:rgba(170,180,255,.09); --accent-ink:#C3CAFF;
-  --sun:#F2B85A; --ok:#5CD69A; --err:#FF8A80; --r-night:#6170C4; --shadow:none; color-scheme:dark}}
+  --sun:#F2B85A; --ok:#5CD69A; --err:#FF8A80; --ctl:#666E8E; --r-night:#6170C4; --shadow:none; color-scheme:dark}}
 :root[data-theme="dark"]{
   --paper:#090C17; --surface:#10152A; --ink:#E9ECF5; --muted:#A6ADC4; --faint:#8E95AD;
   --line:#1F2641; --line2:#181E36; --accent:#AAB4FF; --accent-soft:rgba(170,180,255,.09); --accent-ink:#C3CAFF;
-  --sun:#F2B85A; --ok:#5CD69A; --err:#FF8A80; --r-night:#6170C4; --shadow:none; color-scheme:dark}
+  --sun:#F2B85A; --ok:#5CD69A; --err:#FF8A80; --ctl:#666E8E; --r-night:#6170C4; --shadow:none; color-scheme:dark}
 
 /* the sky commits to the real phase and always carries light text; registered so phase changes fade */
 @property --sky1{syntax:"<color>";inherits:true;initial-value:#131842}
 @property --sky2{syntax:"<color>";inherits:true;initial-value:#523873}
 @property --sky3{syntax:"<color>";inherits:true;initial-value:#A65A42}
 body[data-phase="night"]{--sky1:#050918;--sky2:#0F173D;--sky3:#1F2A60;--stars:1}
+body[data-phase="day"]{--glow:rgba(255,226,170,.20)}
+body[data-phase="dawn"],body[data-phase="dusk"]{--glow:rgba(255,178,120,.26)}
 body[data-phase="dawn"] {--sky1:#171D4C;--sky2:#523F80;--sky3:#B86F7A;--stars:.45}
 body[data-phase="day"]  {--sky1:#163C7E;--sky2:#2659A3;--sky3:#3F74B5;--stars:0}
 body[data-phase="dusk"] {--sky1:#131842;--sky2:#523873;--sky3:#A65A42;--stars:.5}
@@ -59,6 +61,9 @@ a{color:var(--accent)}
 .num{font-variant-numeric:tabular-nums lining-nums}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
 .sky :focus-visible{outline-color:#fff}
+.sky .skel{background:rgba(255,255,255,.14)}
+.skip{position:absolute;left:12px;top:-60px;z-index:60;background:var(--surface);color:var(--ink);padding:10px 14px;border-radius:12px;font-weight:600;text-decoration:none;box-shadow:var(--shadow)}
+.skip:focus{top:12px}
 .sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 /* ---------- layout ---------- */
@@ -66,7 +71,7 @@ a{color:var(--accent)}
 
 /* ---------- sky ---------- */
 .sky{position:relative;color:#fff;overflow:hidden;isolation:isolate;
-  background:linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 60%,var(--sky3) 100%);
+  background:radial-gradient(52% 38% at var(--sx,50%) var(--sy,65%),var(--glow,transparent),transparent 72%),linear-gradient(180deg,var(--sky1) 0%,var(--sky2) 60%,var(--sky3) 100%);
   transition:--sky1 1.2s ease,--sky2 1.2s ease,--sky3 1.2s ease;padding:env(safe-area-inset-top,0px) max(16px,env(safe-area-inset-right,0px)) 18px max(16px,env(safe-area-inset-left,0px))}
 .sky::before{content:"";position:absolute;inset:0 0 auto;height:2px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.85),transparent);
   transform:translateX(-100%);opacity:0;z-index:5}
@@ -75,7 +80,8 @@ a{color:var(--accent)}
 @media (min-width:1000px){
   .app{display:grid;grid-template-columns:minmax(440px,46%) minmax(0,1fr)}
   .sky{position:sticky;top:0;height:100vh;height:100dvh;display:flex;flex-direction:column}
-  .stage-wrap{flex:1;display:grid;align-content:center;max-height:820px;margin-block:auto}
+  .stage-wrap{flex:0 0 auto;margin-top:clamp(16px,6vh,72px)}
+  main{background:linear-gradient(180deg,color-mix(in srgb,var(--sky2) 9%,transparent),transparent 380px)}
   .stage{max-width:min(720px,calc((100dvh - 330px)*1.5))}
 }
 .bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:12px;min-height:56px}
@@ -86,11 +92,11 @@ a{color:var(--accent)}
 .glass{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;cursor:pointer;
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:background .15s,border-color .15s}
 .glass:hover{background:rgba(255,255,255,.2)}
-.locbtn{display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 14px 0 12px;border-radius:999px;font-weight:600;font-size:14px;min-width:0;max-width:min(46vw,260px)}
+.locbtn{display:inline-flex;align-items:center;gap:7px;height:44px;padding:0 14px 0 12px;border-radius:999px;font-weight:600;font-size:14px;min-width:0;max-width:min(46vw,260px)}
 .locbtn svg{width:15px;height:15px;flex:none;opacity:.9}
 .locbtn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .locbtn.pending span{opacity:.6}
-.ibtn{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:999px;flex:none;padding:0}
+.ibtn{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:999px;flex:none;padding:0}
 .ibtn svg{width:17px;height:17px}
 .ibtn.tagged{width:auto;display:inline-flex;gap:7px;padding:0 13px 0 11px;font-weight:600;font-size:13.5px}
 
@@ -113,7 +119,7 @@ a{color:var(--accent)}
 .stage{position:relative;container-type:inline-size;width:100%;max-width:560px;margin:6px auto 0}
 .dial{display:block;width:100%;height:auto;overflow:visible}
 .dial text{font-family:var(--f-ui);fill:#fff}
-.dial .tick-l{font-family:var(--f-he);font-size:10.5px;opacity:.6}
+.dial .tick-l{font-family:var(--f-he);font-size:12px;opacity:.8}
 .dial .edge{font-size:11.5px;font-weight:600;opacity:.92}
 .dial .hit{fill:transparent;cursor:pointer;outline:none}
 .dial .hit:focus-visible{stroke:#fff;stroke-width:1.6}
@@ -122,11 +128,17 @@ a{color:var(--accent)}
 .core .eyebrow{font:700 clamp(10px,2.5cqw,12px)/1.2 var(--f-ui);letter-spacing:.16em;text-transform:uppercase;opacity:.82}
 .core .nm{font:400 clamp(17px,5.1cqw,29px)/1.15 var(--f-display);margin-top:.4em;text-wrap:balance}
 .core .nm .he{font:400 .78em/1 var(--f-he);opacity:.78;margin-left:.45em}
-.core .nm .op{opacity:.72}
+.core .nm .op{color:#fff;opacity:.9;font-size:.5em;letter-spacing:.1em;vertical-align:.35em;margin-left:.3em}
 .core .tm{font:300 clamp(46px,16.5cqw,98px)/1 var(--f-display);letter-spacing:-.035em;margin-top:.1em}
 .core .tm .ampm{font:600 clamp(10.5px,2.7cqw,14px)/1 var(--f-ui);letter-spacing:.08em;margin-left:.35em;opacity:.82}
 .core.swap{animation:swap .7s cubic-bezier(.2,.7,.2,1)}
 @keyframes swap{from{opacity:0;transform:translateY(8px)}}
+.dpop{position:absolute;z-index:4;transform:translate(-50%,8px);min-width:200px;max-width:min(300px,90vw);background:var(--surface);color:var(--ink);border-radius:16px;
+  box-shadow:0 18px 40px rgba(5,8,25,.35);padding:6px;display:grid}
+.dpop button{display:flex;justify-content:space-between;gap:14px;align-items:center;min-height:44px;padding:0 12px;border:0;border-radius:10px;background:none;cursor:pointer;font:600 14px/1.2 var(--f-ui);color:var(--ink);text-align:left}
+.dpop button:hover,.dpop button:focus-visible{background:var(--accent-soft)}
+.dpop button span{font:400 18px/1 var(--f-display);white-space:nowrap}
+.dpop small{display:block;font:600 11px/1 var(--f-ui);letter-spacing:.08em;text-transform:uppercase;color:var(--faint);padding:8px 12px 4px}
 .cd{position:absolute;left:50%;top:85.5%;transform:translate(-50%,-50%);display:inline-flex;align-items:center;gap:8px;white-space:nowrap;
   font:600 14px/1 var(--f-ui);padding:8px 13px 8px 11px;border-radius:999px;background:rgba(6,10,30,.28);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 .cd i{width:7px;height:7px;border-radius:50%;background:#F6C66B;box-shadow:0 0 0 4px rgba(246,198,107,.25)}
@@ -143,7 +155,7 @@ button.hchip svg{width:14px;height:14px;align-self:center}
 .prov i{width:7px;height:7px;border-radius:50%;background:#F6C66B}
 .prov button{border:0;background:none;color:#fff;text-decoration:underline;font:inherit;cursor:pointer;padding:2px}
 .tonight .he{font-size:15px}
-.facts{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 16px;font-size:13px;text-shadow:0 1px 2px rgba(6,10,30,.35)}
+.facts{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 16px;font-size:13px;padding:4px 12px;border-radius:999px;background:rgba(6,10,30,.16);text-shadow:0 1px 2px rgba(6,10,30,.35)}
 .facts b{font-weight:600}
 .sky-error{max-width:440px;margin:10px auto 0;background:rgba(6,10,30,.35);border-radius:14px;padding:12px 14px;font-size:14px;text-align:center}
 .sky-error button{margin-top:8px;height:36px;padding:0 14px;border-radius:999px;font-weight:600}
@@ -159,9 +171,9 @@ main{padding:22px max(14px,env(safe-area-inset-left,0px)) 28px;max-width:780px;m
 .panel-h h2 .he{font-size:16px;color:var(--muted);margin-left:9px;font-weight:400}
 .tools{display:flex;align-items:center;gap:4px}
 .switch{display:inline-flex;align-items:center;gap:9px;font-size:13.5px;font-weight:500;color:var(--muted);cursor:pointer;user-select:none;min-height:44px;padding:0 6px}
-.switch input{appearance:none;-webkit-appearance:none;width:34px;height:20px;border-radius:999px;background:var(--line);position:relative;cursor:pointer;margin:0;flex:none;transition:background .15s}
+.switch input{appearance:none;-webkit-appearance:none;width:34px;height:20px;border-radius:999px;background:var(--line);box-shadow:inset 0 0 0 1.5px var(--ctl);position:relative;cursor:pointer;margin:0;flex:none;transition:background .15s}
 .switch input::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.3);transition:transform .15s}
-.switch input:checked{background:var(--accent)}
+.switch input:checked{background:var(--accent);box-shadow:none}
 .switch input:checked::after{transform:translateX(14px)}
 .tbtn{width:44px;height:44px;border-radius:999px;border:0;background:none;color:var(--muted);cursor:pointer;display:grid;place-items:center}
 .tbtn:hover{color:var(--accent);background:var(--accent-soft)}
@@ -214,9 +226,9 @@ main{padding:22px max(14px,env(safe-area-inset-left,0px)) 28px;max-width:780px;m
 .earlier button{display:grid;grid-template-columns:20px 1fr auto;gap:14px;align-items:center;width:100%;min-height:44px;padding:6px 14px 6px 8px;border:0;border-radius:12px;background:none;
   color:var(--muted);font:600 13.5px/1.2 var(--f-ui);cursor:pointer;text-align:left}
 .earlier button:hover{background:var(--accent-soft);color:var(--accent)}
-.earlier .stack{justify-self:center;width:11px;height:11px;border-radius:50%;border:2px dotted var(--faint)}
-.earlier svg{width:15px;height:15px;transition:transform .2s}
-.earlier [aria-expanded="true"] svg{transform:rotate(180deg)}
+.earlier .stack{justify-self:center;width:12px;height:14px;color:var(--faint)}
+.earlier svg:not(.stack){width:15px;height:15px;transition:transform .2s}
+.earlier [aria-expanded="true"] svg:not(.stack){transform:rotate(180deg)}
 .z.sk .skel{display:inline-block;height:14px;width:min(170px,60%)}
 .z.sk .zt .skel{height:22px;width:64px}
 .skel{color:transparent!important;background:var(--line);border-radius:6px;animation:sk 1.4s ease-in-out infinite}
@@ -263,7 +275,7 @@ dialog[open]{animation:pop .22s cubic-bezier(.2,.8,.2,1)}
 .sh-h h2:focus{outline:none}
 .sh-h h2{margin:0;font:500 21px/1.2 var(--f-display);letter-spacing:-.01em}
 .sh-h h2 .he{font-size:16px;color:var(--muted);margin-left:8px;font-weight:400}
-.xbtn{width:40px;height:40px;flex:none;border-radius:50%;border:1px solid var(--line);background:none;cursor:pointer;color:var(--muted);display:grid;place-items:center}
+.xbtn{width:44px;height:44px;flex:none;border-radius:50%;border:1px solid var(--line);background:none;cursor:pointer;color:var(--muted);display:grid;place-items:center}
 .xbtn:hover{color:var(--ink)}
 .xbtn svg{width:14px;height:14px}
 .locq{display:flex;align-items:center;gap:10px;padding:16px 16px 10px}
@@ -322,7 +334,11 @@ dialog.sheet{width:min(760px,calc(100vw - 24px));max-height:calc(100dvh - 32px);
 .route-mid svg{display:block;width:100%;height:22px;margin-bottom:4px;color:var(--faint)}
 .route-mid .al{display:block;font-weight:600;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .h3{margin:0;font:500 19px/1.25 var(--f-display)}
-.times{display:grid;grid-template-columns:1fr 1fr .8fr;gap:12px}
+.times{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.check{display:flex;gap:10px;align-items:center;font-size:14px;color:var(--muted);min-height:44px;cursor:pointer}
+.check input{width:20px;height:20px;accent-color:var(--accent);flex:none;margin:0}
+details.opt summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--muted);min-height:36px;display:flex;align-items:center}
+details.opt .fld{margin-top:8px;max-width:240px}
 .actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .summary{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px 12px 16px;border:1px solid var(--line);border-radius:16px}
 .summary .t{min-width:0;font-size:14px;color:var(--muted);outline:none}
@@ -331,7 +347,7 @@ dialog.sheet{width:min(760px,calc(100vw - 24px));max-height:calc(100dvh - 32px);
 .status .st{display:flex;align-items:flex-start;gap:8px;min-width:0;flex:1 1 260px}
 .status .st i{width:8px;height:8px;border-radius:50%;background:var(--faint);flex:none;margin-top:6px}
 .status .st.on i{background:var(--ok);box-shadow:0 0 0 3px rgba(30,138,85,.18)}
-.zonebar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+.zonebar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;position:sticky;top:var(--shh,72px);z-index:2;background:var(--surface);padding:8px 0;margin:-8px 0}
 .zonebar .l{font-size:13px;color:var(--faint);font-weight:600}
 .fly-hero{position:relative;overflow:hidden;border-radius:20px;padding:20px 22px;color:#fff;background:linear-gradient(160deg,var(--h1,#141943),var(--h2,#5A3D7C))}
 .fly-hero .eyebrow{font:700 11.5px/1.3 var(--f-ui);letter-spacing:.14em;text-transform:uppercase;opacity:.82}
@@ -353,6 +369,9 @@ dialog.sheet{width:min(760px,calc(100vw - 24px));max-height:calc(100dvh - 32px);
 .win .s.alt2{color:var(--muted);font-weight:600}
 .win .wd{font:600 11px/1 var(--f-ui);color:var(--faint);margin-inline:4px 2px;letter-spacing:.02em}
 .win.done{opacity:.55}
+.win.open{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.win .now{display:inline-block;margin-left:8px;font:700 10px/1 var(--f-ui);letter-spacing:.09em;color:var(--accent);border:1px solid currentColor;border-radius:999px;padding:3px 7px;vertical-align:1px}
+.zt .alt2{display:block;font:600 11.5px/1 var(--f-ui);color:var(--faint);margin-top:6px;letter-spacing:0}
 .tl{position:relative;padding-top:24px}
 .tl-bar{position:relative;height:14px;border-radius:999px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
 .tl-m{position:absolute;top:50%;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgba(10,14,40,.35)}
@@ -378,7 +397,11 @@ details.how p{margin:8px 0 0;font-size:13px;color:var(--faint);line-height:1.65}
 @media (max-width:560px){
   .mark span{display:none}
   .zn .he{display:block;margin:1px 0 0;text-align:left}
-  .zl1 .he{order:3;flex-basis:100%}
+  .zl1{display:grid;grid-template-columns:minmax(0,max-content) auto;justify-content:start;align-items:start;column-gap:8px}
+  .zl1 .he{grid-column:1/-1;grid-row:2}
+  .zl1 .more{grid-row:1;grid-column:2;margin-top:0}
+  .win{padding:11px 14px}
+  .win .v{font-size:20px}
   .panel-h{padding:16px 14px 6px 16px}
   .zlist{padding:2px 4px 8px}
   .zt{font-size:25px}
@@ -409,6 +432,7 @@ details.how p{margin:8px 0 0;font-size:13px;color:var(--faint);line-height:1.65}
 </head>
 <body data-phase="dusk">
 <script id="boot">try{var p=JSON.parse(localStorage.getItem("zm:phase"));if(!p){var h=new Date().getHours();p=h<5||h>=19?"night":h<7?"dawn":h<16?"day":"dusk"}document.body.dataset.phase=p}catch(e){}</script>
+<a class="skip" href="#main">Skip to zmanim</a>
 <div class="app">
 
 <header class="sky" id="sky">
@@ -453,7 +477,9 @@ details.how p{margin:8px 0 0;font-size:13px;color:var(--faint);line-height:1.65}
         <path id="arcDay" fill="none" stroke="#fff" stroke-opacity=".4" stroke-width="1.2" stroke-dasharray="2 4"/>
         <path id="arcDone" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="1.7" stroke-linecap="round"/>
         <g id="ticks"></g>
-        <line x1="0" y1="205" x2="400" y2="205" stroke="#fff" stroke-opacity=".5" stroke-width="1"/>
+        <defs><linearGradient id="ground" x1="0" y1="205" x2="0" y2="900" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#040818" stop-opacity=".05"/><stop offset=".3" stop-color="#040818" stop-opacity=".32"/><stop offset="1" stop-color="#040818" stop-opacity=".45"/></linearGradient></defs>
+        <rect x="-700" y="205" width="1800" height="2400" fill="url(#ground)"/>
+        <line x1="-700" y1="205" x2="1100" y2="205" stroke="#fff" stroke-opacity=".5" stroke-width="1"/>
         <g id="marks"></g>
         <g id="sun" style="transition:transform 1s ease" hidden><circle r="28" fill="url(#glow)"/><circle r="8.5" fill="#FFD884"/></g>
         <g id="moon" hidden><circle cx="364" cy="34" r="12" fill="#F3EEDB" mask="url(#moonMask)"/></g>
@@ -463,9 +489,10 @@ details.how p{margin:8px 0 0;font-size:13px;color:var(--faint);line-height:1.65}
       </svg>
       <div class="core" id="core" aria-live="off">
         <div class="eyebrow" id="nextLbl">&nbsp;</div>
-        <div class="nm" id="nextName">&nbsp;</div>
-        <div class="tm num" id="nextTime">&nbsp;</div>
+        <div class="nm" id="nextName"><span class="skel">Plag HaMincha</span></div>
+        <div class="tm num" id="nextTime"><span class="skel">3:42</span></div>
       </div>
+      <div class="dpop" id="dpop" hidden></div>
       <div class="cd num" id="countdown" hidden><i aria-hidden="true"></i><span id="cdTxt"></span></div>
     </div>
     <div class="under">
@@ -474,7 +501,7 @@ details.how p{margin:8px 0 0;font-size:13px;color:var(--faint);line-height:1.65}
       <div class="prov" id="prov" role="status" hidden></div>
       <div class="facts num" id="facts"></div>
     </div>
-    <div class="sky-error" id="skyErr" hidden></div>
+    <div class="sky-error" id="skyErr" role="alert" hidden></div>
   </div>
 </header>
 
@@ -483,7 +510,7 @@ details.how p{margin:8px 0 0;font-size:13px;color:var(--faint);line-height:1.65}
     <div class="panel-h">
       <h2 id="zh">Zmanim <span class="he" lang="he">זמנים</span></h2>
       <div class="tools">
-        <label class="switch"><input type="checkbox" id="altsTgl"> All opinions</label>
+        <label class="switch"><input type="checkbox" role="switch" id="altsTgl"> All opinions</label>
         <button class="tbtn" id="shareBtn" type="button" aria-label="Share these zmanim" title="Share"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 10V2M5 4.8 8 2l3 2.8M4 7.5H3v6.5h10V7.5h-1"/></svg></button>
       </div>
     </div>
@@ -503,7 +530,7 @@ details.how p{margin:8px 0 0;font-size:13px;color:var(--faint);line-height:1.65}
   </div>
 
   <footer>
-    <details><summary>Times by Hebcal · rounded the safe way · sources</summary>
+    <details><summary id="footSum">Times by Hebcal · rounded the safe way · sources</summary>
     <p>Times come from <a href="https://www.hebcal.com/home/1663/zmanim-halachic-times-api" target="_blank" rel="noopener">Hebcal</a> to the second. Deadlines (sof zman, chatzos, shkiah) are rounded down and start times rounded up, so nothing on screen is later than a real deadline. Places by <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>; flight routes by <a href="https://www.adsbdb.com/" target="_blank" rel="noopener">adsbdb</a>. Leave a margin, and ask your rav which shitos to follow.</p>
     <p class="keys">Keys: <kbd>←</kbd> <kbd>→</kbd> day, <kbd>T</kbd> today, <kbd>L</kbd> location, <kbd>F</kbd> flight, <kbd>S</kbd> settings.</p></details>
   </footer>
@@ -521,6 +548,7 @@ details.how p{margin:8px 0 0;font-size:13px;color:var(--faint);line-height:1.65}
     Use my current location
   </button>
   <ul class="res" id="res"></ul>
+  <p class="sr" role="status" id="locLive"></p>
   <div class="kbdhint">Enter picks the first match · ↑ ↓ to move</div>
 </dialog>
 
@@ -531,9 +559,9 @@ details.how p{margin:8px 0 0;font-size:13px;color:var(--faint);line-height:1.65}
     <label class="set-row" for="candleSel"><span>Candle lighting<span class="sub">Minutes before shkiah</span></span>
       <select id="candleSel"><option value="auto">Local custom</option><option value="18">18 min</option><option value="20">20 min</option><option value="22">22 min</option><option value="30">30 min</option><option value="40">40 min</option></select>
     </label>
-    <label class="set-row switch" for="h24Tgl"><span>24-hour clock</span><input type="checkbox" id="h24Tgl"></label>
-    <label class="set-row switch" for="secTgl"><span>Show seconds<span class="sub">Exact times, no rounding</span></span><input type="checkbox" id="secTgl"></label>
-    <label class="set-row switch" for="keysTgl"><span>Keyboard shortcuts<span class="sub">← → T L F S</span></span><input type="checkbox" id="keysTgl"></label>
+    <label class="set-row switch" for="h24Tgl"><span>24-hour clock</span><input type="checkbox" role="switch" id="h24Tgl"></label>
+    <label class="set-row switch" for="secTgl"><span>Show seconds<span class="sub">Exact times, no rounding</span></span><input type="checkbox" role="switch" id="secTgl"></label>
+    <label class="set-row switch" for="keysTgl"><span>Keyboard shortcuts<span class="sub">← → T L F S</span></span><input type="checkbox" role="switch" id="keysTgl"></label>
     <p class="fine">With seconds off, every deadline is rounded down to the minute and every start time is rounded up, so a time on screen is never later than the real deadline or earlier than the real start.</p>
   </div>
 </dialog>
@@ -558,12 +586,15 @@ details.how p{margin:8px 0 0;font-size:13px;color:var(--faint);line-height:1.65}
       <h3 class="h3">Confirm your flight times</h3>
       <p class="lead" style="margin-top:-8px">Zmanei can't see airline schedules. Copy the times from your ticket, in each airport's local time.</p>
       <div class="times">
-        <label class="fld"><span id="fDepL">Takeoff</span><input type="datetime-local" id="fDep" aria-describedby="fErr"></label>
+        <label class="fld"><span id="fDepL">Takeoff</span><input type="datetime-local" id="fDep" required aria-describedby="fErr"></label>
         <label class="fld"><span id="fArrL">Landing</span><input type="datetime-local" id="fArr" aria-describedby="fErr"></label>
+      </div>
+      <label class="check" id="fEstRow" hidden><input type="checkbox" id="fUseEst"> I don't have the landing time. Use the estimate.</label>
+      <details class="opt"><summary>Flight details</summary>
         <label class="fld">Cruising height
           <select id="fAlt"><option value="31000">31,000 ft</option><option value="33000">33,000 ft</option><option value="35000">35,000 ft</option><option value="37000">37,000 ft</option><option value="39000">39,000 ft</option><option value="41000">41,000 ft</option></select>
         </label>
-      </div>
+      </details>
       <p class="msg" id="fErr" aria-live="polite"></p>
       <div class="actions"><button class="btn" id="fGo" type="button">Show zmanim</button><button class="btn ghost" id="fOther" type="button">Different flight</button></div>
     </section>
@@ -571,10 +602,10 @@ details.how p{margin:8px 0 0;font-size:13px;color:var(--faint);line-height:1.65}
     <section class="fly-step" id="stepResults" hidden>
       <div class="summary"><div class="t" id="fSum" tabindex="-1"></div><button class="btn ghost" id="fEdit" type="button">Edit</button></div>
       <div class="status">
-        <div class="st" id="fStat"><i></i><span></span></div>
+        <div class="st" id="fStat" role="status"><i></i><span></span></div>
         <button class="btn ghost" id="fGps" type="button"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="8" cy="8" r="5"/><path d="M8 1v2.5M8 12.5V15M1 8h2.5M12.5 8H15"/></svg>Use my phone's GPS</button>
       </div>
-      <div class="zonebar"><span class="l" id="zoneL">Times in</span><span class="seg" id="zoneSeg" role="group" aria-labelledby="zoneL"></span></div>
+      <div class="zonebar"><span class="l" id="zoneL">All times below in</span><span class="seg" id="zoneSeg" role="group" aria-labelledby="zoneL"></span></div>
       <div id="flyOut" style="display:grid;gap:18px"></div>
     </section>
   </div>
@@ -599,6 +630,7 @@ const S = {
   showEarlier: false,
 };
 const saveSet = () => store.set("settings", S.set);
+S.firstRun = !store.get("locSet", false) && !/[?&](g|lat|zip)=/.test(location.search) && !store.get("loc", null);
 function applyTheme() {
   const t = S.set.theme;
   if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme;
@@ -656,7 +688,7 @@ function dur(m) {
   m = Math.max(0, m);
   const s = Math.floor(m / 1000), h = Math.floor(s / 3600), mi = Math.floor((s % 3600) / 60), se = s % 60;
   if (h) return `${h}h ${String(mi).padStart(2, "0")}m`;
-  if (mi) return `${mi}m ${String(se).padStart(2, "0")}s`;
+  if (mi) return mi < 10 ? `${mi}m ${String(se).padStart(2, "0")}s` : `${mi}m`;
   return `${se}s`;
 }
 const durH = (m) => { const t = Math.round(Math.max(0, m) / 6e4), h = Math.floor(t / 60); return h ? `${h}h ${String(t % 60).padStart(2, "0")}m` : `${t % 60}m`; };
@@ -705,13 +737,13 @@ async function load() {
   if (!S.loc.name && loc.city) { S.loc.name = loc.city; S.loc.sub = [loc.admin1, loc.country].filter(Boolean).join(", "); }
   const il = S.loc.cc === "IL" ? "&i=on" : "";
   const [y, m, d] = D.split("-");
-  const [cal, shab, h0, h1] = await Promise.all([
+  const rest = Promise.all([
     j(`${H}/hebcal?v=1&cfg=json&${locQ("cal")}&maj=on&min=on&mod=on&nx=on&mf=on&ss=on&s=on&F=on&myomi=on&nyomi=on&o=on&c=on&M=on&lg=a${b}${il}&start=${D}&end=${D}`).catch(() => null),
     j(`${H}/shabbat?cfg=json&${locQ("shab")}&M=on&lg=a${b}${il}&gy=${y}&gm=${+m}&gd=${+d}`).catch(() => null),
     j(`${H}/converter?cfg=json&date=${D}&g2h=1&strict=1`).catch(() => null),
     j(`${H}/converter?cfg=json&date=${D1}&g2h=1&strict=1`).catch(() => null),
   ]);
-  return { D, D1, z, cal, shab, h0, h1 };
+  return { D, D1, z, rest };
 }
 
 /* ---------- model ---------- */
@@ -799,14 +831,15 @@ function drawStars() {
   if (STAR_DONE) return; STAR_DONE = true;
   let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
   let h = "";
-  for (let i = 0; i < 54; i++) {
-    const x = rnd() * 400, y = rnd() * 190, r = rnd() < 0.15 ? 1.25 : 0.65;
+  for (let i = 0; i < 150; i++) {
+    const x = -320 + rnd() * 1040, y = -520 + rnd() * 712, r = rnd() < 0.15 ? 1.25 : 0.65;
     if (x > 85 && x < 315 && y > 55) continue;
     h += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="#fff" opacity="${(0.35 + rnd() * 0.6).toFixed(2)}"/>`;
   }
   $("#stars").innerHTML = h;
 }
 let DIAL = { pts: [], next: null, sun: null };
+const COARSE = matchMedia("(pointer: coarse)").matches;
 const SHORT = { alos: "Alos", mish: "Misheyakir", netz: "Netz", shma: "Shema", tfila: "Tefillah", chatzos: "Chatzos", mg: "Mincha Gedolah",
   mk: "Mincha Ketanah", plag: "Plag", shkia: "Shkiah", tzeis: "Tzeis", rt: "Rabbeinu Tam", candles: "Candles", havdalah: "Havdalah", menorah: "Menorah" };
 function drawBase() {
@@ -838,7 +871,7 @@ function drawDial(data, rows, now, live) {
     const P = { id: e.r.id, op: e.op, t: e.t, x, y, name: e.r.en };
     DIAL.pts.push(P);
     if (isNext) DIAL.next = P;
-    hits += `<circle class="hit" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="12" tabindex="0" role="button" data-id="${e.r.id}" data-i="${DIAL.pts.length - 1}" aria-label="${esc(e.r.en)}${e.op ? " " + e.op : ""}, ${timeTxt(e.t)}. Show in the list."/>`;
+    hits += `<circle class="hit" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${COARSE ? 16 : 12}" tabindex="${isNext || (!nextEv && DIAL.pts.length === 1) ? 0 : -1}" role="button" data-id="${e.r.id}" data-i="${DIAL.pts.length - 1}" aria-label="${esc(e.r.en)}${e.op ? " " + e.op : ""}, ${timeTxt(e.t)}. Show in the list."/>`;
     mk += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${isNext ? 4 : 2.6}" fill="${e.r.special ? "#F6C66B" : "#fff"}" opacity="${past ? 0.45 : 0.95}"/>`;
     if (isNext && !RM.matches) mk += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="9" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1"><animate attributeName="r" values="6;11;6" dur="2.4s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values=".8;.1;.8" dur="2.4s" repeatCount="indefinite"/></circle>`;
   }
@@ -852,8 +885,10 @@ function drawDial(data, rows, now, live) {
     DIAL.sun = { x, y };
     $("#arcDone").setAttribute("d", arcPath(Math.PI + TW, th, 64));
     vis(moon, false);
+    placeGlow();
   } else {
     vis(sun, false);                  // another day: no sun pretending to be "now"
+    placeGlow();
     $("#arcDone").setAttribute("d", live && now > k.rt ? arcPath(Math.PI + TW, -TW, 64) : "M0 0");
     vis(moon, !!live);
   }
@@ -879,12 +914,24 @@ function dialLabel(P) {            // a label on the dome for the zman you're po
   best = best || { x: Math.max(3 + w / 2, Math.min(397 - w / 2, P.x)), y: Math.max(14, P.y - 15) };
   g.innerHTML = `<circle cx="${P.x.toFixed(1)}" cy="${P.y.toFixed(1)}" r="5.5" fill="none" stroke="#fff" stroke-width="1.3"/><text class="lbl" x="${best.x.toFixed(1)}" y="${best.y.toFixed(1)}" text-anchor="middle">${esc(txt)}</text>`;
 }
+function placeGlow() {
+  const sun = DIAL.sun, svg = $("#dial");
+  if (!sun || !svg.getBoundingClientRect) { sky.style.removeProperty("--sx"); return; }
+  const a = svg.getBoundingClientRect(), b = sky.getBoundingClientRect();
+  if (!b.width || !b.height) return;
+  sky.style.setProperty("--sx", (((a.left - b.left) + (sun.x / 400) * a.width) / b.width * 100).toFixed(1) + "%");
+  sky.style.setProperty("--sy", (((a.top - b.top) + (sun.y / 262) * a.height) / b.height * 100).toFixed(1) + "%");
+}
+addEventListener("resize", () => placeGlow());
 function dialJump(id) {
   const li = $(`#zlist .z[data-id="${id}"]`);
   if (!li) return;
   if (li.classList.contains("past") && $("#zlist").classList.contains("collapsed")) { S.showEarlier = true; lastNextKey = ""; renderLive(true); }
   const row = $(`#zlist .z[data-id="${id}"]`);
   row.scrollIntoView({ behavior: RM.matches ? "auto" : "smooth", block: "center" });
+  row.setAttribute("tabindex", "-1"); row.focus({ preventScroll: true });
+  const r = S.data.rows.find((x) => x.id === id);
+  if (r) $("#live").textContent = `${r.en}: ${r.dual ? r.dual.map(([op, t]) => `${op} ${timeTxt(t)}`).join(", ") : timeTxt(r.t)}`;
   linkRow(id, true); setTimeout(() => linkRow(null, false), 1600);
 }
 function linkRow(id, on) { $("#zlist").querySelectorAll(".z.hl").forEach((li) => li.classList.remove("hl")); if (on && id) { const li = $(`#zlist .z[data-id="${id}"]`); if (li) li.classList.add("hl"); } }
@@ -905,8 +952,10 @@ function renderStatic() {
   $("#locBtn").classList.remove("pending");
   $("#locBtn").setAttribute("aria-label", `Location: ${place}. Change location`);
   $("#pageH").textContent = `Zmanim for ${place}, ${gLabel(D, { weekday: "long", month: "long", day: "numeric" })}`;
-  $("#gdate").textContent = (isToday() ? "Today · " : "") + gLabel(D, { weekday: "long", month: "long", day: "numeric", year: isToday() ? undefined : "numeric" });
+  $("#gdate").textContent = (isToday() ? "Today · " : "") + gLabel(D, { weekday: "long", month: "long", day: "numeric", year: isToday() ? undefined : "numeric" }) + " · " + tzAbbr(tz(), Date.parse(D + "T12:00:00Z"));
+  $("#footSum").textContent = S.set.sec ? "Times by Hebcal · exact to the second · sources" : "Times by Hebcal · rounded the safe way · sources";
   if (h0) { const p = h0.heDateParts; $("#hdate").innerHTML = `${esc(p.d)} ${esc(p.m)}<small>${esc(p.y)}</small>`; }
+  else if (h0 === undefined) $("#hdate").innerHTML = `<span class="skel">כ״ו חשון</span>`;
   else $("#hdate").textContent = "";
   $("#dateIn").value = D;
   $("#todayBtn").hidden = isToday();
@@ -921,7 +970,7 @@ function renderStatic() {
       ? `<div class="zt dual num">${r.dual.map(([op, t]) => `<div><span class="op">${op}</span>${timeHTML(t)}</div>`).join("")}</div>`
       : `<div class="zt num">${timeHTML(r.t)}</div>`;
     const alts = (r.alts || []).filter((a) => isFinite(a[1]));
-    const more = alts.length ? `<button class="more" type="button" aria-expanded="${!!S.set.alts}" aria-controls="alts-${r.id}" aria-label="${alts.length} other opinion${alts.length > 1 ? "s" : ""} for ${esc(r.en)}">+${alts.length}</button>` : "";
+    const more = alts.length ? `<button class="more" type="button" aria-expanded="${!!S.set.alts}" aria-controls="alts-${r.id}" aria-label="${alts.length} other opinion${alts.length > 1 ? "s" : ""} for ${esc(r.en)}" title="${alts.length} other opinion${alts.length > 1 ? "s" : ""}">+${alts.length}</button>` : "";
     return `<li class="z${r.special ? " special" : ""}${alts.length ? " has-alts" : ""}" data-id="${r.id}" style="--rail:${railColor(r, z, D)}">
       <span class="dot" aria-hidden="true"></span>
       <div class="zn"><div class="zl1"><span class="en">${esc(r.en)}</span><span class="he" lang="he">${esc(r.he)}</span>${more}</div>${r.note ? `<span class="note">${esc(r.note)}</span>` : ""}</div>
@@ -947,6 +996,7 @@ function renderStatic() {
 }
 function renderShabbos(shab) {
   const el = $("#shab");
+  if (shab === undefined) { el.innerHTML = `<p class="empty" style="padding:0"><span class="skel">Loading Shabbos times</span></p>`; return; }
   if (!shab || !shab.items) { el.innerHTML = `<p class="empty" style="padding:0">Couldn't load Shabbos times. <button type="button" data-retry>Try again</button></p>`; return; }
   const items = shab.items;
   const par = items.find((i) => i.category === "parashat");
@@ -968,6 +1018,7 @@ function renderShabbos(shab) {
     ${hol.length && par ? `<div class="also">${hol.map((h) => esc(h.title)).join(" · ")}</div>` : ""}`;
 }
 function renderDay(cal, D) {
+  if (cal === undefined) { $("#chips").innerHTML = `<span class="chip plain"><span class="skel">Loading the day</span></span>`; $("#learn").innerHTML = ""; return; }
   if (!cal) {
     $("#chips").innerHTML = "";
     $("#learn").innerHTML = `<li><p class="empty" style="padding:0">Couldn't load holidays and the daily learning. <button type="button" data-retry>Try again</button></p></li>`;
@@ -1038,8 +1089,10 @@ function renderLive(force) {
     $("#countdown").hidden = true;
   }
   if (force || key !== lastNextKey) {
-    const out = (data.chips || []).filter((c) => !(live && isFinite(c.t) && c.t < now)).map((c) => c.h);
+    const coreT = live && nx ? nx.t : !live ? overview(data).t : NaN;      // don't repeat what the dome already says
+    const out = (data.chips || []).filter((c) => !(live && isFinite(c.t) && c.t < now) && c.t !== coreT).map((c) => c.h);
     if (live && isFinite(data.havNext) && now > T("sunset")) out.unshift(`<span class="hchip warm">Havdalah tomorrow <b class="num">${timeTxt(data.havNext)}</b></span>`);
+    if (S.firstRun) out.unshift(`<button class="hchip" type="button" data-loc>Showing ${esc(S.loc.name || "Cedarhurst")} · Change</button>`);
     $("#strip").innerHTML = out.slice(0, 3).join("");
     $("#facts").innerHTML = data.factsHTML || "";
   }
@@ -1067,7 +1120,7 @@ function renderLive(force) {
     }
     const fold = live && nPast >= 3 && lastPast && lastPast.nextElementSibling;
     ol.classList.toggle("collapsed", !!fold && !S.showEarlier);
-    if (fold) firstPast.insertAdjacentHTML("beforebegin", `<li class="earlier"><button type="button" aria-expanded="${S.showEarlier}"><span class="stack" aria-hidden="true"></span><span>${S.showEarlier ? "Hide earlier zmanim" : `Earlier today · ${nPast} zmanim`}</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></button></li>`);
+    if (fold) firstPast.insertAdjacentHTML("beforebegin", `<li class="earlier"><button type="button" aria-expanded="${S.showEarlier}"><svg class="stack" viewBox="0 0 12 14" aria-hidden="true"><circle cx="6" cy="2" r="1.6" fill="currentColor"/><circle cx="6" cy="7" r="1.6" fill="currentColor"/><circle cx="6" cy="12" r="1.6" fill="currentColor"/></svg><span>${S.showEarlier ? "Hide earlier zmanim" : `Earlier today · ${nPast} zmanim`}</span><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></button></li>`);
     if (live && lastPast && lastPast.nextElementSibling && (!fold || S.showEarlier)) {
       lastPast.insertAdjacentHTML("afterend", `<li class="nowline" aria-hidden="true"><span></span><span>Now</span><span></span></li>`);
     }
@@ -1079,6 +1132,7 @@ function renderLive(force) {
       $("#sun").setAttribute("transform", `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
       DIAL.sun = { x, y };
       $("#arcDone").setAttribute("d", arcPath(Math.PI + TW, th, 64));
+      if (now % 60000 < 1000) placeGlow();
     }
   }
   const rel = $("#zlist .rel");
@@ -1100,17 +1154,23 @@ async function refresh(opts = {}) {
   $("#skyErr").hidden = true;
   sky.classList.add("busy");
   try {
-    const data = await load();
+    const first = await load();
     if (id !== reqId) return;
+    const keep = S.data && S.data.D === first.D && S.data.locK === locKey(S.loc) ? S.data : null;   // same day and place: keep cards while they refresh
+    const data = { D: first.D, D1: first.D1, z: first.z, locK: locKey(S.loc), cal: keep ? keep.cal : undefined, shab: keep ? keep.shab : undefined, h0: keep ? keep.h0 : undefined, h1: keep ? keep.h1 : undefined };
     S.data = data;
     S.savedAt = null;
     prov("");
     store.set("loc", S.loc);
     writeUrl();
     renderStatic();
-    try { store.set("last", { key: locKey(S.loc) + "|" + data.D, at: Date.now(), data: { D: data.D, D1: data.D1, z: data.z, cal: data.cal, shab: data.shab, h0: data.h0, h1: data.h1 } }); } catch {}
     document.title = `Zmanei · ${S.loc.name || "Zmanim"}`;
     if (opts.onDone) opts.onDone();
+    const [cal, shab, h0, h1] = await first.rest;
+    if (id !== reqId) return;
+    Object.assign(data, { cal, shab, h0, h1 });
+    renderStatic();
+    try { store.set("last", { key: data.locK + "|" + data.D, at: Date.now(), data: { D: data.D, D1: data.D1, z: data.z, locK: data.locK, cal, shab, h0, h1 } }); } catch {}
   } catch (e) {
     if (id !== reqId) return;
     if (opts.prev && S.data) {                        // keep showing what we had, and say so
@@ -1137,7 +1197,7 @@ $("#prevDay").onclick = () => setDate(addDays(viewDate(), -1));
 $("#nextDay").onclick = () => setDate(addDays(viewDate(), 1));
 $("#todayBtn").onclick = () => setDate(null);
 $("#dateIn").onchange = (e) => e.target.value && setDate(e.target.value);
-document.addEventListener("click", (e) => { if (e.target.closest("[data-retry]")) refresh(); });
+document.addEventListener("click", (e) => { if (e.target.closest("[data-retry]")) refresh(); if (e.target.closest("[data-loc]")) $("#locBtn").click(); });
 
 setInterval(() => {
   if (!S.data) return;
@@ -1166,16 +1226,35 @@ zl.addEventListener("pointerleave", () => dialLabel(null));
 zl.addEventListener("focusout", () => dialLabel(null));
 $("#dial").addEventListener("pointerover", (e) => { const h = e.target.closest(".hit"); if (!h) return; dialLabel(DIAL.pts[+h.dataset.i]); linkRow(h.dataset.id, true); });
 $("#dial").addEventListener("pointerout", (e) => { if (e.target.closest(".hit")) { dialLabel(null); linkRow(null, false); } });
-let ptr = "mouse", tapped = "";
+let ptr = "mouse";
+const dpop = $("#dpop");
+const closePop = () => { if (!dpop.hidden) { dpop.hidden = true; dialLabel(null); linkRow(null, false); } };
 $("#dial").addEventListener("pointerdown", (e) => { ptr = e.pointerType || "mouse"; });
-$("#dial").addEventListener("click", (e) => {     // touch: first tap names the zman, second tap finds it in the list
+$("#dial").addEventListener("click", (e) => {     // touch: a small list of the marks under your finger, each one tap from its row
   const h = e.target.closest(".hit"); if (!h) return;
-  if (ptr === "touch" && tapped !== h.dataset.i) { tapped = h.dataset.i; dialLabel(DIAL.pts[+h.dataset.i]); linkRow(h.dataset.id, true); return; }
-  tapped = ""; dialJump(h.dataset.id);
+  if (ptr !== "touch") { dialJump(h.dataset.id); return; }
+  const P = DIAL.pts[+h.dataset.i], near = DIAL.pts.filter((q) => Math.hypot(q.x - P.x, q.y - P.y) < 18);
+  dialLabel(P);
+  dpop.innerHTML = `<small>${near.length > 1 ? "These zmanim" : "Zman"}</small>` + near.map((q) => `<button type="button" data-id="${q.id}">${esc(SHORT[q.id] || q.name)}${q.op ? " " + q.op : ""}<span class="num">${timeTxt(q.t)}</span></button>`).join("");
+  const px = Math.max(22, Math.min(78, (P.x / 400) * 100)), py = (P.y / 262) * 100;
+  dpop.style.left = px + "%"; dpop.style.top = py + "%";
+  dpop.hidden = false;
+  e.stopPropagation();
 });
+dpop.addEventListener("click", (e) => { const b = e.target.closest("[data-id]"); if (b) { dpop.hidden = true; dialLabel(null); dialJump(b.dataset.id); } });
+document.addEventListener("click", (e) => { if (!e.target.closest("#dpop") && !e.target.closest(".hit")) closePop(); });
 $("#dial").addEventListener("focusin", (e) => { const h = e.target.closest(".hit"); if (h) { dialLabel(DIAL.pts[+h.dataset.i]); linkRow(h.dataset.id, true); } });
 $("#dial").addEventListener("focusout", () => { dialLabel(null); linkRow(null, false); });
-$("#dial").addEventListener("keydown", (e) => { const h = e.target.closest(".hit"); if (h && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); dialJump(h.dataset.id); } });
+$("#dial").addEventListener("keydown", (e) => {
+  const h = e.target.closest(".hit"); if (!h) return;
+  if (e.key === "Enter" || e.key === " ") { e.preventDefault(); dialJump(h.dataset.id); return; }
+  if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(e.key)) return;
+  e.preventDefault(); e.stopPropagation();
+  const hs = [...$("#dial").querySelectorAll(".hit")], i = hs.indexOf(h);
+  const n = e.key === "Home" ? 0 : e.key === "End" ? hs.length - 1 : Math.max(0, Math.min(hs.length - 1, i + (e.key === "ArrowLeft" || e.key === "ArrowDown" ? -1 : 1)));
+  hs.forEach((x, k) => x.setAttribute("tabindex", k === n ? "0" : "-1"));
+  hs[n].focus();
+});
 $("#altsTgl").checked = !!S.set.alts;
 $("#altsTgl").onchange = (e) => {
   S.set.alts = e.target.checked; saveSet();
@@ -1267,7 +1346,7 @@ async function search(v) {
     if (id !== sId) return;
     found = (d.results || []).map((r) => ({ type: "geoname", id: r.id, name: r.name, sub: [r.admin1, r.country].filter(Boolean).join(", "), tz: r.timezone, cc: r.country_code, lat: r.latitude, lng: r.longitude }));
     mode = "found"; lastQ = v;
-    $("#live").textContent = found.length ? `${found.length} place${found.length > 1 ? "s" : ""} found` : "No places found";
+    $("#locLive").textContent = found.length ? `${found.length} place${found.length > 1 ? "s" : ""} found` : "No places found";
     res.innerHTML = found.length ? found.map((L, i) => resItem(L, `data-i="${i}"`)).join("") : `<li class="msg">No places match “${esc(v)}”. Try the nearest larger town, or a ZIP code.</li>`;
   } catch {
     if (id === sId) res.innerHTML = `<li class="msg">Search is unavailable right now. Try a US ZIP code, or use your current location.</li>`;
@@ -1280,6 +1359,7 @@ res.addEventListener("click", (e) => {
 });
 function choose(L) {
   const prev = snapshot();
+  S.firstRun = false; store.set("locSet", true);
   if (L.type === "zip") L.name = "";               // hebcal names the town
   S.loc = L; S.date = null; dlg.close();
   $("#locName").textContent = L.name || "Loading…";
@@ -1510,6 +1590,24 @@ function flyFlat() {
   for (const r of flyEv || []) (r.dual || [[null, r.t]]).forEach(([op, t]) => isFinite(t) && out.push({ r, op, t }));
   return out.sort((a, b) => a.t - b.t);
 }
+const placeCache = new Map();
+function placeName(d) {
+  if (d.countryName) return [d.principalSubdivision || d.city || d.locality, d.countryName].filter(Boolean).join(", ");
+  const inf = ((d.localityInfo && d.localityInfo.informative) || []).map((x) => x.name).filter((n) => n && !n.includes("/"));
+  const seas = inf.filter((n) => /Ocean|Sea|Gulf|Bay|Strait|Channel|Passage/.test(n));
+  const off = /Exclusive economic zone of (.+)/.exec(d.locality || "");
+  const sea = seas.length ? seas[seas.length - 1] : "";
+  return sea ? `the ${sea}${off ? `, off ${off[1]}` : ""}` : off ? `the waters off ${off[1]}` : "";
+}
+function where(p) {                    // "the Atlantic Ocean, off Ireland"; coordinates until the name arrives (or offline)
+  const k = Math.round(p.lat) + "," + Math.round(p.lng);
+  if (placeCache.has(k)) return placeCache.get(k) || fmtPos(p);
+  placeCache.set(k, "");
+  if (navigator.onLine !== false && location.protocol !== "file:")
+    j(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${p.lat.toFixed(2)}&longitude=${p.lng.toFixed(2)}&localityLanguage=en`, 6000)
+      .then((d) => { const n = placeName(d); if (n) { placeCache.set(k, n); if (flyDlg.open && F && F.confirmed) flyRender(); } }).catch(() => {});
+  return fmtPos(p);
+}
 const opWord = (op) => ({ Plane: "seen from the plane", Ground: "on the ground below" }[op] || op);
 function flyStep() {                 // which of the three steps is showing
   const step = !F ? "find" : !F.confirmed ? "confirm" : "results";
@@ -1525,11 +1623,14 @@ function flyConfirmFill() {
     <div class="route-mid"><svg viewBox="0 0 200 22" preserveAspectRatio="none" aria-hidden="true"><path d="M4 20 Q100 -8 196 20" fill="none" stroke="currentColor" stroke-width="1.3" stroke-dasharray="3 4" vector-effect="non-scaling-stroke"/></svg>
       <span class="al">${esc([F.airline, F.q].filter(Boolean).join(" "))}</span>${mi.toLocaleString("en-US")} mi</div>
     <div class="ap r"><b>${esc(apCode(F.d))}</b><span>${esc(F.d.city)}</span></div>`;
-  $("#fDepL").innerHTML = `Takeoff · ${esc(apCode(F.o))} time${F.depSet ? "" : ' <span class="est">· set this</span>'}`;
-  $("#fArrL").innerHTML = `Landing · ${esc(apCode(F.d))} time${F.arrSet ? "" : ' <span class="est">· estimated</span>'}`;
+  $("#fDepL").innerHTML = `Takeoff · ${esc(apCode(F.o))} local time`;
+  $("#fArrL").innerHTML = `Landing · ${esc(apCode(F.d))} local time${F.depSet && !F.arrSet ? ' <span class="est">· estimated</span>' : ""}`;
   const dep = $("#fDep"), arr = $("#fArr");
-  if (document.activeElement !== dep) dep.value = toLocal(F.dep, F.o.tz);
-  if (document.activeElement !== arr) arr.value = toLocal(F.arr, F.d.tz);
+  if (document.activeElement !== dep) dep.value = F.depSet ? toLocal(F.dep, F.o.tz) : "";
+  if (document.activeElement !== arr) arr.value = F.depSet ? toLocal(F.arr, F.d.tz) : "";
+  arr.disabled = !F.depSet;
+  $("#fEstRow").hidden = !F.depSet || F.arrSet;
+  $("#fUseEst").checked = !!F.useEst;
   dep.classList.toggle("ask", !F.depSet);
   $("#fAlt").value = String(F.cruise || 35000);
 }
@@ -1561,7 +1662,8 @@ function flyRender() {
   if (step === "confirm") { flyConfirmFill(); return; }
   flyCalc(false);
   const P = flyPath, now = Date.now(), zone = flyZone(), flat = flyFlat(), zab = tzAbbr(zone, now);
-  $("#fSum").innerHTML = `<b>${esc(F.q)} · ${esc(apCode(F.o))} → ${esc(apCode(F.d))}</b>${esc(dayName(P.dep, F.o.tz))}, ${timeTxt(P.dep, F.o.tz)} ${esc(apCode(F.o))} time → ${esc(dayName(P.arr, F.d.tz))}, ${timeTxt(P.arr, F.d.tz)} ${esc(apCode(F.d))} time · ${fmtAlt(P.cruise)}`;
+  $("#fSum").innerHTML = `<b>${esc(F.q)} · ${esc(apCode(F.o))} → ${esc(apCode(F.d))}</b>${esc(dayName(P.dep, F.o.tz))}, ${timeTxt(P.dep, F.o.tz)} ${esc(apCode(F.o))} time → ${esc(dayName(P.arr, F.d.tz))}, ${timeTxt(P.arr, F.d.tz)} ${esc(apCode(F.d))} time${F.useEst && !P.eta ? " (estimated)" : ""} · ${fmtAlt(P.cruise)}`;
+  flyDlg.style.setProperty("--shh", $(".sh-h", flyDlg).offsetHeight + "px");
   const focusZ = document.activeElement && document.activeElement.dataset && document.activeElement.dataset.z;
   flyZoneSeg();
   if (focusZ) { const b = $(`#zoneSeg [data-z="${focusZ}"]`); if (b) b.focus(); }
@@ -1580,7 +1682,7 @@ function flyRender() {
       <div class="nm">${esc(nx.r.en)}${nx.op ? ` <span style="opacity:.72">(${esc(opWord(nx.op))})</span>` : ""}<span class="he" lang="he">${esc(nx.r.he)}</span></div>
       <div class="tm num">${timeHTML(nx.t, zone)}<span class="zn2">${esc(zab)} · ${esc(dayName(nx.t, zone))}</span></div>
       <div class="cd2 num"><i aria-hidden="true"></i><span id="fCd">in ${dur(nx.t - now)}</span></div>
-      <div class="where">Projected position: over ${fmtPos(at)} at ${fmtAlt(at.alt)} · ${durH(nx.t - P.dep)} into the flight, ${Math.round(gcKm(at, F.d) * 0.621371).toLocaleString("en-US")} mi to go.</div></div>`;
+      <div class="where">You'll be over ${esc(where(at))} at ${fmtAlt(at.alt)} · ${durH(nx.t - P.dep)} into the flight, ${Math.round(gcKm(at, F.d) * 0.621371).toLocaleString("en-US")} mi to go.</div></div>`;
   } else {
     hero = `<div class="fly-hero"><div class="eyebrow">In the air</div><div class="nm">No more zmanim before landing</div>
       <div class="where">Landing ${timeTxt(P.arr, F.d.tz)} ${esc(apCode(F.d))} time. After that, use the times for ${esc(F.d.city)}.</div></div>`;
@@ -1595,14 +1697,19 @@ function flyRender() {
   { const s = first("tzeis"); win("Maariv", "מעריב", s, "tzeis", NaN, ""); }
   const wd = (t, zn) => new Date(t).toLocaleDateString("en-US", { timeZone: zn, weekday: "short" });
   const T = (t) => `${timeHTML(t, zone)}<span class="wd">${wd(t, zone)}</span>`;
-  const other = (S.set.flyZone || "phone") === "d" ? F.o : F.d;
+  const other = (S.set.flyZone || "phone") === "d" ? F.o : F.d;   // the "=" clock: whichever airport isn't on screen
+  for (const w of W) {
+    w.state = isFinite(w.e) && w.e <= now ? "done" : (isFinite(w.s) ? w.s <= now : now < (isFinite(w.e) ? w.e : Infinity)) ? "open" : "next";
+    w.ord = { open: 0, next: 1, done: 2 }[w.state];
+  }
+  W.sort((a, b) => a.ord - b.ord || (isFinite(a.s) ? a.s : a.e) - (isFinite(b.s) ? b.s : b.e));
   const wins = W.length ? `<div class="wins">${W.map((w) => {
-    const v = isFinite(w.s) && isFinite(w.e) ? `${T(w.s)} – ${T(w.e)}` : isFinite(w.s) ? `from ${T(w.s)}` : `until ${T(w.e)}`;
-    const s = isFinite(w.s) && isFinite(w.e) ? `${w.sl} to ${w.el}` : isFinite(w.s) ? `${w.sl}${w.k === "Maariv" ? "" : " · its end isn't within this flight"}` : `${w.el} · its start isn't within this flight`;
-    const ref = isFinite(w.s) ? w.s : w.e;
-    const alt = `= ${timeTxt(ref, other.tz)} ${apCode(other)} time, ${wd(ref, other.tz)}`;
-    const done = isFinite(w.e) && w.e < now;
-    return `<div class="win${done ? " done" : ""}"><div class="k">${w.k}<span class="he" lang="he">${w.he}</span></div><div class="v num">${v}</div><div class="s">${esc(s)}${w.extra ? " · " + esc(w.extra) : ""}</div><div class="s alt2">${esc(alt)}</div></div>`;
+    const hasS = isFinite(w.s), hasE = isFinite(w.e);
+    const v = hasS && hasE ? `${T(w.s)} – ${T(w.e)}` : hasS ? `from ${T(w.s)}` : w.state === "open" ? `now – ${T(w.e)}` : `until ${T(w.e)}`;
+    const s = hasS && hasE ? `${w.sl} to ${w.el}` : hasS ? `${w.sl}${w.k === "Maariv" ? "" : " · continues after landing"}` : `open from before takeoff · ends at ${w.el}`;
+    const conv = (t) => timeTxt(t, other.tz);
+    const alt = `= ${hasS ? conv(w.s) : "now"}${hasE ? ` – ${conv(w.e)}` : ""} ${apCode(other)} time, ${wd(hasS ? w.s : w.e, other.tz)}`;
+    return `<div class="win ${w.state}"><div class="k">${w.k}<span class="he" lang="he">${w.he}</span>${w.state === "open" ? '<span class="now">Open now</span>' : ""}</div><div class="v num">${v}</div><div class="s">${esc(s)}${w.extra ? " · " + esc(w.extra) : ""}</div><div class="s alt2">${esc(alt)}</div></div>`;
   }).join("")}</div>` : "";
   // timeline: the sky the plane flies through; key zmanim get their labels first
   const span = P.arr - P.dep, X = (t) => Math.max(0, Math.min(100, ((t - P.dep) / span) * 100));
@@ -1631,10 +1738,11 @@ function flyRender() {
     const past = end <= now, morning = r.at && solar(r.sort, r.at.lat, r.at.lng).ha < 0;
     const dn = dayName(r.sort, zone), sep = dn !== lastDay ? `<li class="dsep">${esc(dn)}</li>` : "";
     lastDay = dn;
+    const oth = `<span class="alt2">= ${timeTxt(r.sort, other.tz)} ${esc(apCode(other))}</span>`;
     const time = r.dual
-      ? `<div class="zt dual num">${r.dual.filter((x) => isFinite(x[1])).map(([op, t]) => `<div><span class="op">${op.toUpperCase()}</span>${timeHTML(t, zone)}</div>`).join("")}</div>`
-      : `<div class="zt num">${timeHTML(r.t, zone)}</div>`;
-    const note = [r.note, `over ${fmtPos(r.at)}`, fmtAlt(r.at.alt)].filter(Boolean).join(" · ");
+      ? `<div class="zt dual num">${r.dual.filter((x) => isFinite(x[1])).sort((a, b) => a[1] - b[1]).map(([op, t]) => `<div><span class="op">${op.toUpperCase()}</span>${timeHTML(t, zone)}</div>`).join("")}${oth}</div>`
+      : `<div class="zt num">${timeHTML(r.t, zone)}${oth}</div>`;
+    const note = [r.note, `over ${where(r.at)}`, fmtAlt(r.at.alt)].filter(Boolean).join(" · ");
     return `${sep}<li class="z${past ? " past" : ""}${r === nk ? " next" : ""}" style="--rail:${skyCol(r.sunEl, morning)}"><span class="dot" aria-hidden="true"></span>
       <div class="zn"><span class="en">${esc(r.en)}</span><span class="he" lang="he">${esc(r.he)}</span><span class="note">${esc(note)}</span></div>${time}${r === nk ? `<span class="sr">Next</span>` : ""}</li>`;
   }).join("")}</ol></div>` : `<p class="msg">No zmanim fall between takeoff and landing on this flight.</p>`;
@@ -1738,13 +1846,13 @@ $("#fArr").onchange = (e) => {
   F.arr = t; F.arrSet = true; fErr("", null); saveF(); flyConfirmFill();
 };
 $("#fAlt").onchange = (e) => { F.cruise = +e.target.value; saveF(); };
+$("#fUseEst").onchange = (e) => { F.useEst = e.target.checked; saveF(); fErr("", null); };
 $("#fGo").onclick = () => {
   const dep = fromLocal($("#fDep").value, F.o.tz), arr = fromLocal($("#fArr").value, F.d.tz);
-  if (!isFinite(dep)) { fErr("Enter your takeoff date and time.", "#fDep"); $("#fDep").focus(); return; }
+  if (!isFinite(dep)) { fErr(`Enter the takeoff date and time from your ticket, in ${apCode(F.o)} local time.`, "#fDep"); $("#fDep").focus(); return; }
   if (!isFinite(arr) || arr <= dep) { fErr(`Landing must be after takeoff, in ${apCode(F.d)} local time.`, "#fArr"); $("#fArr").focus(); return; }
-  if (!F.depSet && !F.depOk) { F.depOk = true; fErr(`Takeoff was filled in for you (${timeTxt(dep, F.o.tz)}). Enter the time on your ticket, or press Show zmanim again to keep it.`, "#fDep", true); $("#fDep").focus(); return; }
-  if (!F.arrSet && !F.arrOk) { F.arrOk = true; fErr("Landing is estimated from the distance. Enter the time on your ticket, or press Show zmanim again to use the estimate.", "#fArr", true); $("#fArr").focus(); return; }
-  F.dep = dep; F.arr = arr; F.confirmed = true; saveF(); fErr("", null);
+  if (!F.arrSet && !$("#fUseEst").checked) { fErr("Enter the landing time from your ticket, or tick “Use the estimate”.", "#fArr", true); $("#fArr").focus(); return; }
+  F.dep = dep; F.depSet = true; F.arr = arr; F.useEst = !F.arrSet; F.confirmed = true; saveF(); fErr("", null);
   flyCalc(true); flyRender(); flyChrome(); flyLiveFetch(true);
   $("#flyDlg").scrollTop = 0;
   $("#fSum").focus();
