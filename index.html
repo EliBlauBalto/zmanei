@@ -1684,7 +1684,14 @@ if (F) { F.q = niceFlight(F.q); if (F.confirmed == null) F.confirmed = true; }
 let flyStatusKind = "";
 let flyEv = null, flyPath = null, flyCalcAt = 0, flyLive = "idle", flyLiveAt = 0, flyNote = "", flyNextKey = "";
 const saveF = () => store.set("flight", F);
-const flyZone = () => (F && S.set.flyZone === "o" ? F.o.tz : F && S.set.flyZone === "d" ? F.d.tz : browserTz());
+const sameClock = (a, b, t = Date.now()) => zoneOff(a, t) === zoneOff(b, t) && tzAbbr(a, t) === tzAbbr(b, t);
+const flySide = () => {                // "o", "d", or "" when the primary clock is a device on neither airport's time
+  if (!F) return "";
+  const k = S.set.flyZone || "phone";
+  if (k === "o" || k === "d") return k;
+  return sameClock(browserTz(), F.o.tz) ? "o" : sameClock(browserTz(), F.d.tz) ? "d" : "";
+};
+const flyZone = () => (F && flySide() === "o" ? F.o.tz : F && flySide() === "d" ? F.d.tz : browserTz());
 const fmtPos = (p) => `${Math.abs(p.lat).toFixed(0)}°${p.lat >= 0 ? "N" : "S"} ${Math.abs(p.lng).toFixed(0)}°${p.lng >= 0 ? "E" : "W"}`;
 const fmtAlt = (ft) => (ft > 1500 ? `${(Math.round(ft / 500) * 500).toLocaleString("en-US")} ft` : "near the ground");
 const apCode = (a) => a.iata || a.icao || "";
@@ -1835,10 +1842,10 @@ function span2(t1, z1, t2, z2) {
   return [a, timeTxt(t2, z2) + (z ? " " + z : "") + dd];
 }
 function listClock(zn) {
-  const st = { lz: "", lo: null, ld: "" };
+  const st = { lz: "", lo: null, ld: "", hd: "" };
   const take = (t) => { st.lz = tzAbbr(zn, t); st.lo = zoneOff(zn, t); st.ld = dayName(t, zn); };
   return {
-    sep(t) { if (dayName(t, zn) === st.ld) return ""; const h = `${dayName(t, zn)} · ${tzAbbr(zn, t)}`; take(t); return h; },
+    sep(t) { if (dayName(t, zn) === st.hd) return ""; const h = `${dayName(t, zn)} · ${tzAbbr(zn, t)}`; st.hd = dayName(t, zn); take(t); return h; },
     meta(t) { const z = zoneTag(zn, t, st.lz, st.lo), d = dayName(t, zn), m = [z, d !== st.ld ? d : ""].filter(Boolean); take(t); return m; },
   };
 }
@@ -1858,7 +1865,7 @@ function flyRender() {
   if (focusZ) { const bz = $(`#zoneSeg [data-z="${focusZ}"]`); if (bz) bz.focus(); }
   flyStatus();
   const nx = flat.find((e) => e.t > now), liveFix = F.fix && P.fixed;
-  const other = (S.set.flyZone || "phone") === "d" ? F.o : F.d;   // the second clock: whichever airport isn't on screen
+  const other = flySide() === "d" ? F.o : F.d;   // the second clock: the airport the primary clock isn't
   // hero: the next zman, where you'll be for it, and the globe at that moment
   let hero;
   if (now > P.arr) {
@@ -1948,7 +1955,7 @@ function flyRender() {
     const end = r.dual ? Math.max(...r.dual.map((x) => x[1]).filter(isFinite)) : r.t;
     const past = end <= now, morning = r.at && solar(r.sort, r.at.lat, r.at.lng).ha < 0;
     const shown = r.dual ? r.dual.filter((x) => isFinite(x[1])).sort((a2, b2) => (a2[0] === "Plane") - (b2[0] === "Plane")) : [[null, r.t]];
-    const head = PL.sep(shown[0][1]), sep = head ? `<li class="dsep">${esc(head)}</li>` : "";
+    const head = PL.sep(r.sort), sep = head ? `<li class="dsep">${esc(head)}</li>` : "";      // a row sits under the day of its earliest time
     const PT = (t) => { const m = PL.meta(t); return `${timeHTML(t, zone)}${m.length ? `<span class="wd">${esc(m.join(" · "))}</span>` : ""}`; };
     const oth = r.dual ? "" : `<span class="alt2">${esc(apCode(other))} ${esc(asText(OL(r.sort)))}</span>`;
     const time = r.dual
