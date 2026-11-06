@@ -1,6 +1,6 @@
 // Network first, cache as the fallback: always fresh online, and the last-seen page and times still open on a plane.
-const CACHE = "zmanei-v1";
-const SHELL = ["./", "./index.html", "./icon.svg", "./manifest.webmanifest"];
+const CACHE = "zmanei-v3";
+const SHELL = ["./", "./index.html", "./icon.svg", "./apple-touch-icon.png", "./manifest.webmanifest"];
 
 self.addEventListener("install", (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).catch(() => {})); self.skipWaiting(); });
 self.addEventListener("activate", (e) => {
