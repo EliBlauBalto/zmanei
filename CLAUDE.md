@@ -14,12 +14,14 @@ Started 6 Nov 2026 in a TISReverse session. Eli's ask: "I hate myzmanim.com, it'
 one. SOTA design. Use the Hebcal API and whatever else. Temporary domain for now; it may become my own thing."
 
 ## What it is
-One static page, no build step, no framework, no backend:
+One static page, no build step, no framework. One optional serverless function (Vercel only):
 | File | Role |
 |---|---|
 | `index.html` | Everything: CSS tokens, markup, and the app script (one IIFE at the bottom). |
 | `icon.svg` | Favicon / home-screen icon (dusk sky, sun over the horizon). |
-| `manifest.webmanifest` | Add-to-home-screen. All paths are **relative** because Pages serves under `/zmanei/`. |
+| `manifest.webmanifest` | Add-to-home-screen, with a "Flight" shortcut (`./#flight`). All paths are **relative** because Pages serves under `/zmanei/`. |
+| `sw.js` | Service worker, network-first with cache fallback, so the page and last-seen times open offline (on a plane). Bump `CACHE` to force a clean cache. |
+| `api/adsb.js` | Vercel function: proxies live ADS-B (adsb.lol, then adsb.fi) by callsign, because those feeds send no CORS header. On GitHub Pages it 404s and the page silently falls back to the schedule estimate. |
 
 Features: next-zman hero with a live countdown; a sun dial (the sun's path drawn as the halachic day, with the 12
 sha'os zmaniyos ticked and every zman marked); the full list with MGA and GRA side by side on Shema/Tefillah, an "All
@@ -38,6 +40,26 @@ clock. Location, settings and recents persist in localStorage; the URL carries t
 | Hebrew date | `hebcal.com/converter?cfg=json&date=D&g2h=1&strict=1` | Called for D and D+1 (after-shkiah date). |
 | Place search | `geocoding-api.open-meteo.com/v1/search` | **Hebcal's `complete.php` has no CORS header**, so it can't be called from the browser. Open-Meteo ids are GeoNames ids, which Hebcal accepts as `geonameid`. If Hebcal lacks a town, the code falls back to lat/lng/tzid. |
 | Reverse geocode for "my location" | `api.bigdatacloud.net/data/reverse-geocode-client` | Free client endpoint, CORS ok. |
+| Flight route | `api.adsbdb.com/v0/callsign/{UA90 or UAL90}` | Free, keyless, CORS `*`. Gives origin/destination airports with lat/lng/elevation (ft). No schedule times: the user enters takeoff/landing. |
+| Airport time zone | `api.open-meteo.com/v1/forecast?latitude&longitude&timezone=auto` | CORS ok. |
+| Live position | `api/adsb?callsign=UAL90` (our proxy) -> `api.adsb.lol/v2/callsign/`, `opendata.adsb.fi/api/v2/callsign/` | Free, keyless, **no CORS**, hence the proxy. OpenSky (CORS locked to its own site) and airplanes.live (403, needs an emailed request) were ruled out 6 Nov. |
+
+Times: the zmanim call uses `sec=1`. Hebcal's default rounds to the *nearest* minute, which showed Sof Zman Shema GRA
+9:04:35 as 9:05 (late). `safeMin()` floors deadlines (`sofZman*`, `chatzot*`, `sunset`) and ceils everything else.
+"Show seconds" in Settings shows exact times.
+
+## Flight zmanim (`#flight`, the plane button)
+The engine is between `flight-engine:start/end` markers and is pure JS (no DOM), so it can be tested in node.
+- Path: great circle origin -> destination at constant speed over the user's takeoff/landing; climb 25 min, descend 30.
+  A live fix (ADS-B or the phone's GPS, ignored within 20 km of either airport) becomes a waypoint and re-anchors the
+  rest; ground speed > 150 kt gives an ETA.
+- Each zman is found at the plane's **future** position: sun-angle zmanim (alos 16.1°, misheyakir 11.5°, tzeis 8.5°,
+  netz/shkiah) are sign changes of the sun's elevation at `posAt(t)`; sha'os zmaniyos (Shema/Tefillah MGA+GRA,
+  chatzos, mincha, plag) are fixed points `t = zman(posAt(t))` using sea-level sunrise/sunset at that spot; chatzos
+  halailah = midpoint of that spot's shkiah and next netz.
+- Netz/shkiah are shown twice: "Plane" (horizon dip at altitude, about 3.3° at 35,000 ft) and "Ground" (below).
+- Check: a stationary 24 h "flight" at Cedarhurst (altitude 0) reproduced Hebcal `sec=1` within 1 s on every zman (6 Nov).
+  Test by extracting the engine block into node (see git history of this file for the harness idea).
 
 Location kinds in the code: `geoname` (`geonameid=`), `pos` (`latitude&longitude&tzid`), `zip` (`zip=`). The calendar
 API additionally needs `geo=geoname|pos|zip`; `locQ(kind)` builds both forms. Israel (`cc === "IL"`) adds `i=on`.
@@ -55,6 +77,10 @@ Candle minutes: "Local custom" sends no `b`, so Hebcal applies its own city rule
 - Default location is Cedarhurst (geonameid 5111974) until the visitor picks one.
 
 ## Hosting history and options
+- **Eli wants Vercel, not GitHub Pages (6 Nov).** Pages stays live until Vercel is set up. The claude.ai Vercel connector
+  authenticates as `eliblaubalto` but still 403s on team scope `eliblaubaltos-projects`. A Vercel CLI device login was
+  started on 6 Nov (`npx vercel login`) for Eli to approve. Once logged in: `vercel link` + connect the GitHub repo,
+  deploy to `zmanei.vercel.app`, then the live ADS-B proxy (`api/adsb.js`) starts working.
 - Vercel was the first choice (Eli's personal account `eliblau13@gmail.com`, username `eliblaubalto`, hobby plan,
   team `team_MKmZKzcoB51pzkJEimW21kwR` = scope `eliblaubaltos-projects`). The claude.ai Vercel connector returned
   **403: not authorized for that scope**, and the Vercel CLI isn't installed/logged in on the dev box. To move to
@@ -75,5 +101,4 @@ Candle minutes: "Local custom" sends no `b`, so Hebcal applies its own city rule
 ## Open items / ideas (none promised to Eli yet)
 - Real phone test (iPhone Safari, add to home screen) has not been done; only headless desktop/400px renders.
 - Light theme was checked once on desktop; dark on desktop and narrow.
-- No seconds-precision (`sec=1`) yet; times are Hebcal's minute rounding. The footer tells people to leave a margin.
 - Possible next: a week view / printable month, Israel-specific defaults, a custom domain, an offline cache.

@@ -6,6 +6,9 @@
   "display": "standalone",
   "background_color": "#0B0E19",
   "theme_color": "#161B45",
+  "shortcuts": [
+    { "name": "Zmanim on a flight", "short_name": "Flight", "url": "./#flight" }
+  ],
   "icons": [
     { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
   ]

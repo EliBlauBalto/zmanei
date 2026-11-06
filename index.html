@@ -146,7 +146,7 @@ main{padding-block:28px 40px}
 /* side cards */
 .shab{padding:4px 20px 20px}
 .parsha{font:400 italic 30px/1.1 var(--f-display);margin:2px 0 2px;letter-spacing:-.01em;text-wrap:balance}
-.parsha-he{font:500 20px/1.2 var(--f-he);color:var(--muted)}
+.parsha-he{font:500 20px/1.2 var(--f-he);color:var(--muted);text-align:left}
 .kv{display:grid;gap:0;margin-top:14px}
 .kv div{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
 .kv dt{font-size:14px;color:var(--muted)}
@@ -169,6 +169,8 @@ main{padding-block:28px 40px}
 select{background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:6px 10px;font-size:14px}
 footer{color:var(--faint);font-size:12.5px;padding-block:8px 36px;line-height:1.6}
 footer a{color:var(--muted)}
+footer kbd{font:600 11px/1 var(--f-ui);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 5px;background:var(--surface);color:var(--muted)}
+@media (hover:none){footer .keys{display:none}}
 .skel{color:transparent!important;background:var(--line);border-radius:6px;animation:sk 1.4s ease-in-out infinite}
 @keyframes sk{50%{opacity:.5}}
 
@@ -190,6 +192,84 @@ dialog::backdrop{background:rgba(6,9,24,.5);backdrop-filter:blur(3px)}
 .res .lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);font-weight:600;padding:10px 10px 4px}
 .res .msg{padding:10px;color:var(--muted);font-size:14px}
 
+/* in-flight banner in the hero */
+.flybar{display:inline-flex;align-items:center;gap:10px;margin-top:14px;margin-left:8px;padding:6px 12px 6px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.1);color:#fff;font-size:13.5px;font-weight:500;cursor:pointer;max-width:100%}
+.flybar svg{width:15px;height:15px;flex:none}
+.flybar b{font-weight:600}
+
+/* flight sheet */
+dialog.sheet{width:min(780px,calc(100vw - 24px));max-height:calc(100dvh - 32px);overflow:auto;overscroll-behavior:contain}
+.sh-h{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px 14px;
+  background:var(--surface);border-bottom:1px solid var(--line)}
+.sh-h h2{margin:0;font:500 22px/1.2 var(--f-display);letter-spacing:-.005em}
+.sh-h h2 .he{font-size:16px;color:var(--muted);margin-left:8px;font-weight:400}
+.xbtn{width:36px;height:36px;flex:none;border-radius:50%;border:1px solid var(--line);background:none;cursor:pointer;color:var(--muted);display:grid;place-items:center}
+.xbtn svg{width:14px;height:14px}
+.fly-body{padding:18px 20px 24px;display:grid;gap:18px}
+.fly-intro{margin:0;color:var(--muted);font-size:14px;max-width:60ch}
+.fly-find{display:flex;gap:10px;align-items:end}
+.fly-find .fld{flex:1}
+.fld{display:grid;gap:6px;font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);min-width:0}
+.fld input,.fld select{height:44px;border-radius:12px;border:1px solid var(--line);background:var(--paper);padding:0 12px;font-size:16px;font-weight:500;
+  letter-spacing:0;text-transform:none;color:var(--ink);width:100%;min-width:0}
+#fNum{text-transform:uppercase;letter-spacing:.04em}
+#fNum::placeholder{text-transform:none;letter-spacing:0;color:var(--faint)}
+.btn{height:44px;border:0;border-radius:12px;background:var(--accent);color:var(--surface);font-weight:600;padding:0 18px;cursor:pointer;white-space:nowrap;
+  display:inline-flex;align-items:center;gap:8px}
+.btn.ghost{background:var(--accent-soft);color:var(--accent);height:36px;padding:0 13px;font-size:13.5px;border-radius:999px}
+.btn.ghost svg{width:15px;height:15px}
+.btn[disabled]{opacity:.55;cursor:progress}
+.fly-msg{margin:0;font-size:14px;color:var(--muted)}
+.route{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:16px;padding:16px 18px;border:1px solid var(--line);border-radius:16px}
+.ap b{display:block;font:400 36px/1 var(--f-display);letter-spacing:-.01em}
+.ap span{display:block;font-size:13px;color:var(--muted);margin-top:4px;max-width:20ch}
+.ap.r{text-align:right}
+.ap.r span{margin-left:auto}
+.route-mid{text-align:center;font-size:12.5px;color:var(--faint);min-width:0}
+.route-mid svg{display:block;width:100%;height:22px;margin-bottom:4px;color:var(--faint)}
+.route-mid .al{display:block;font-weight:600;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fly-times{display:grid;grid-template-columns:1fr 1fr .75fr;gap:12px}
+.fix{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;font-size:13.5px;color:var(--muted)}
+.fix .st{display:inline-flex;align-items:center;gap:7px}
+.fix .st i{width:7px;height:7px;border-radius:50%;background:var(--faint)}
+.fix .st.on i{background:#3BB273;box-shadow:0 0 0 3px rgba(59,178,115,.2)}
+.fly-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:2px;gap:2px}
+.seg button{border:0;background:none;padding:5px 11px;border-radius:999px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+.seg-l{font-size:12px;color:var(--faint);margin-right:6px}
+.fly-hero{position:relative;overflow:hidden;border-radius:16px;padding:18px 20px;color:#fff;background:linear-gradient(160deg,var(--h1,#141943),var(--h2,#5A3D7C))}
+.fly-hero .eyebrow{opacity:.75}
+.fly-hero .nm{font:400 26px/1.15 var(--f-display);margin:6px 0 2px;text-wrap:balance}
+.fly-hero .nm .he{font-size:.72em;opacity:.75;margin-left:10px}
+.fly-hero .tm{font:300 56px/1 var(--f-display);letter-spacing:-.03em;display:flex;align-items:baseline;gap:6px}
+.fly-hero .tm .ampm{font:500 13px/1 var(--f-ui);letter-spacing:.08em;opacity:.8}
+.fly-hero .where{font-size:13px;opacity:.85;margin-top:10px}
+.fly-hero .countdown{margin-top:12px}
+.windows{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.win{border:1px solid var(--line);border-radius:14px;padding:12px 14px;min-width:0}
+.win .k{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);font-weight:600}
+.win .k .he{letter-spacing:0;text-transform:none;font-size:14px;margin-left:6px;font-weight:400}
+.win .v{font:400 22px/1.15 var(--f-display);margin-top:6px;letter-spacing:-.01em}
+.win .v .ampm{font:500 10.5px/1 var(--f-ui);letter-spacing:.08em;margin-inline-start:2px;color:var(--muted)}
+.win .s{font-size:12.5px;color:var(--faint);margin-top:3px}
+.tl{position:relative;padding-top:22px}
+.tl-bar{position:relative;height:14px;border-radius:999px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.tl-m{position:absolute;top:50%;width:7px;height:7px;margin:-3.5px 0 0 -3.5px;border-radius:50%;background:#fff;box-shadow:0 0 0 2px rgba(10,14,40,.35)}
+.tl-m.past{opacity:.5}
+.tl-now{position:absolute;top:-6px;bottom:-6px;width:3px;margin-left:-1.5px;border-radius:3px;background:var(--ink);box-shadow:0 0 0 2px var(--surface)}
+.tl-l{position:absolute;top:0;transform:translateX(-50%);font-size:11px;font-weight:600;color:var(--muted);white-space:nowrap;line-height:1}
+.tl-l.dn{top:44px}
+.tl-l.s{transform:none}.tl-l.e{transform:translateX(-100%)}
+.tl-ends{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--faint);margin-top:26px}
+.tl-ends b{color:var(--muted);font-weight:600}
+.fly-list{border:1px solid var(--line);border-radius:16px}
+.fly-list .zlist{padding:6px 8px 8px}
+.fly-note{margin:0;font-size:12.5px;color:var(--faint);line-height:1.6}
+.fly-note b{color:var(--muted);font-weight:600}
+.fly-foot{display:flex;flex-wrap:wrap;gap:8px}
+
 @media (max-width:860px){
   .grid{grid-template-columns:minmax(0,1fr)}
   .hero{grid-template-columns:minmax(0,1fr);gap:0}
@@ -206,6 +286,24 @@ dialog::backdrop{background:rgba(6,9,24,.5);backdrop-filter:blur(3px)}
   .zn .he{display:block;margin:1px 0 0;text-align:left}
   .panel-h{padding:16px 14px 4px}
   .zlist{padding:4px 2px 8px}
+  dialog.sheet{width:100vw;max-width:100vw;max-height:94dvh;margin:auto 0 0;border-radius:20px 20px 0 0}
+  .sh-h{padding:14px 16px 12px}
+  .fly-body{padding:16px 14px 22px}
+  .fly-times{grid-template-columns:1fr 1fr}
+  .fly-times .fld:last-child{grid-column:1/-1}
+  .route{padding:14px;gap:10px}
+  .ap b{font-size:28px}
+  .fly-hero .tm{font-size:46px}
+}
+@media print{
+  body{background:#fff}
+  #prevDay,#nextDay,#dateLbl,#todayBtn,#flyBtn,.dial,#nextBlock,.flybar,.switch,#setPanel,dialog{display:none!important}
+  .sky{background:none!important;color:#000}
+  .pill{color:#000;border-color:#bbb;background:none}
+  .sky::after{display:none}
+  .mark{color:#000}
+  .panel{break-inside:avoid;border-color:#ccc}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -225,6 +323,10 @@ dialog::backdrop{background:rgba(6,9,24,.5);backdrop-filter:blur(3px)}
         <label class="pill datebox" id="dateLbl"><span id="dateTxt">Today</span><input type="date" id="dateIn" aria-label="Pick a date"></label>
         <button class="pill icon" id="nextDay" type="button" aria-label="Next day"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 3 5 5-5 5"/></svg></button>
         <button class="pill" id="todayBtn" type="button" hidden>Today</button>
+        <button class="pill icon" id="flyBtn" type="button" aria-haspopup="dialog" aria-label="Zmanim on a flight" title="Zmanim on a flight">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M6.6 14.2 8 13l1.4 1.2v-1.6L8.6 12V9.2l5.4 1.6V9.4L8.6 6.6V2.8C8.6 2.1 8.3 1.6 8 1.6s-.6.5-.6 1.2v3.8L2 9.4v1.4l5.4-1.6V12l-.8.6Z"/></svg>
+          <span id="flyTag" hidden></span>
+        </button>
       </div>
     </div>
 
@@ -239,7 +341,7 @@ dialog::backdrop{background:rgba(6,9,24,.5);backdrop-filter:blur(3px)}
           <div class="eyebrow" id="nextLbl">Next zman</div>
           <div class="next-name" id="nextName">&nbsp;</div>
           <div class="next-time num" id="nextTime">&nbsp;</div>
-          <div class="countdown num" id="countdown" hidden><i></i><span id="cdTxt"></span></div>
+          <div class="countdown num" id="countdown" hidden><i></i><span id="cdTxt"></span></div><button class="flybar" id="flyBar" type="button" hidden></button>
           <div class="facts num" id="facts"></div>
         </div>
         <div class="sky-error" id="skyErr" hidden></div>
@@ -290,7 +392,7 @@ dialog::backdrop{background:rgba(6,9,24,.5);backdrop-filter:blur(3px)}
         <ul class="learn" id="learn"></ul>
       </section>
 
-      <section class="panel" aria-labelledby="seth">
+      <section class="panel" aria-labelledby="seth" id="setPanel">
         <div class="panel-h"><h2 id="seth">Settings</h2></div>
         <div class="settings">
           <label class="row" for="candleSel">Candle lighting before shkiah
@@ -301,6 +403,7 @@ dialog::backdrop{background:rgba(6,9,24,.5);backdrop-filter:blur(3px)}
             </select>
           </label>
           <label class="row switch" for="h24Tgl" style="color:var(--ink);font-size:14px;justify-content:space-between">24-hour clock <input type="checkbox" id="h24Tgl"></label>
+          <label class="row switch" for="secTgl" style="color:var(--ink);font-size:14px;justify-content:space-between">Show seconds (exact times) <input type="checkbox" id="secTgl"></label>
         </div>
       </section>
     </div>
@@ -308,9 +411,40 @@ dialog::backdrop{background:rgba(6,9,24,.5);backdrop-filter:blur(3px)}
 </main>
 
 <footer class="wrap">
-  Times from <a href="https://www.hebcal.com/home/1663/zmanim-halachic-times-api" target="_blank" rel="noopener">Hebcal</a>, rounded to the minute. Place search by <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>.
-  Sof zman times are rounded; leave a margin and ask your rav about the shitos you follow.
+  Times from <a href="https://www.hebcal.com/home/1663/zmanim-halachic-times-api" target="_blank" rel="noopener">Hebcal</a>, to the second, then rounded to be safe:
+  deadlines (sof zman, chatzos, shkiah) round down and start times round up. Place search by <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>; flight routes by <a href="https://www.adsbdb.com/" target="_blank" rel="noopener">adsbdb</a>.
+  Leave a margin and ask your rav about the shitos you follow.<span class="keys"> Keys: <kbd>←</kbd> <kbd>→</kbd> change day, <kbd>T</kbd> today, <kbd>L</kbd> location, <kbd>F</kbd> flight.</span>
 </footer>
+
+<dialog id="flyDlg" class="sheet" aria-labelledby="flyH">
+  <div class="sh-h">
+    <h2 id="flyH">Zmanim in the air <span class="he">זמנים בטיסה</span></h2>
+    <button class="xbtn" id="flyClose" type="button" aria-label="Close"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="m2 2 10 10M12 2 2 12"/></svg></button>
+  </div>
+  <div class="fly-body">
+    <p class="fly-intro" id="flyIntro">Enter your flight. Zmanei maps where the plane will be minute by minute and finds each zman at the spot you'll actually be over then, with the horizon as seen from cruising height.</p>
+    <form class="fly-find" id="flyForm">
+      <label class="fld">Flight number<input id="fNum" placeholder="e.g. UA 90 or LY 28" autocomplete="off" spellcheck="false" enterkeyhint="search"></label>
+      <button class="btn" id="fFind" type="submit">Find</button>
+    </form>
+    <p class="fly-msg" id="flyMsg" hidden></p>
+    <div id="flySetup" hidden>
+      <div class="route" id="fRoute"></div>
+      <div class="fly-times" style="margin-top:14px">
+        <label class="fld"><span id="fDepL">Takeoff</span><input type="datetime-local" id="fDep"></label>
+        <label class="fld"><span id="fArrL">Landing</span><input type="datetime-local" id="fArr"></label>
+        <label class="fld">Cruising height
+          <select id="fAlt"><option value="31000">31,000 ft</option><option value="33000">33,000 ft</option><option value="35000" selected>35,000 ft</option><option value="37000">37,000 ft</option><option value="39000">39,000 ft</option><option value="41000">41,000 ft</option></select>
+        </label>
+      </div>
+      <div class="fix" style="margin-top:12px">
+        <button class="btn ghost" id="fGps" type="button"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="5"/><path d="M8 1v2.5M8 12.5V15M1 8h2.5M12.5 8H15"/></svg>Use my phone's GPS</button>
+        <span class="st" id="fFix"><i></i><span>Position estimated from the schedule</span></span>
+      </div>
+    </div>
+    <div id="flyOut" hidden></div>
+  </div>
+</dialog>
 
 <dialog id="locDlg" aria-label="Choose a location">
   <form method="dialog" class="dlg-h" id="locForm">
@@ -337,7 +471,7 @@ const DEFAULT_LOC = { type: "geoname", id: 5111974, name: "Cedarhurst", sub: "Ne
 const S = {
   loc: store.get("loc", DEFAULT_LOC),
   date: null,                         // null = follow today in the location's time zone
-  set: Object.assign({ candle: "auto", h24: false, alts: false }, store.get("settings", {})),
+  set: Object.assign({ candle: "auto", h24: false, alts: false, sec: false, flyZone: "phone" }, store.get("settings", {})),
   data: null,
   loading: false,
 };
@@ -372,18 +506,22 @@ const today = () => ymdIn(tz());
 const viewDate = () => S.date || today();
 const isToday = () => viewDate() === today();
 const ms = (iso) => (iso ? Date.parse(iso) : NaN);
-function parts(t) {
+function parts(t, zone = tz()) {
   if (!isFinite(t)) return { hm: "–", ap: "" };
-  const f = new Intl.DateTimeFormat("en-US", { timeZone: tz(), hour: "numeric", minute: "2-digit", hour12: !S.set.h24, hourCycle: S.set.h24 ? "h23" : "h12" });
+  const f = new Intl.DateTimeFormat("en-US", { timeZone: zone, hour: "numeric", minute: "2-digit", second: S.set.sec ? "2-digit" : undefined, hour12: !S.set.h24, hourCycle: S.set.h24 ? "h23" : "h12" });
   let hm = "", ap = "";
   for (const p of f.formatToParts(new Date(t))) {
     if (p.type === "dayPeriod") ap = p.value.replace(/\./g, "").toLowerCase();
-    else if (p.type === "hour" || p.type === "minute" || p.type === "literal") hm += p.value;
+    else if (p.type === "hour" || p.type === "minute" || p.type === "second" || p.type === "literal") hm += p.value;
   }
   return { hm: hm.trim(), ap };
 }
-const timeHTML = (t) => { const p = parts(t); return `${p.hm}${p.ap ? `<span class="ampm">${p.ap}</span>` : ""}`; };
-const timeTxt = (t) => { const p = parts(t); return p.hm + (p.ap ? " " + p.ap : ""); };
+const timeHTML = (t, zone) => { const p = parts(t, zone); return `${p.hm}${p.ap ? `<span class="ampm">${p.ap}</span>` : ""}`; };
+const timeTxt = (t, zone) => { const p = parts(t, zone); return p.hm + (p.ap ? " " + p.ap : ""); };
+// Hebcal gives seconds; show minutes rounded the safe way: deadlines down, beginnings up.
+const DEADLINE = /^(sofZman|chatzot|sunset)/;
+const safeMin = (t, deadline) => (!isFinite(t) || S.set.sec ? t : (deadline ? Math.floor : Math.ceil)(t / 6e4) * 6e4);
+const zt = (z, k, day, exact) => { const t = ms(z.times[k] && z.times[k][day]); return exact ? t : safeMin(t, DEADLINE.test(k)); };
 function dur(m) {
   m = Math.max(0, m);
   const s = Math.floor(m / 1000), h = Math.floor(s / 3600), mi = Math.floor((s % 3600) / 60), se = s % 60;
@@ -413,11 +551,11 @@ async function load() {
   const D = viewDate(), D1 = addDays(D, 1);
   const b = S.set.candle === "auto" ? "" : "&b=" + S.set.candle;
   let z;
-  try { z = await j(`${H}/zmanim?cfg=json&${locQ("z")}&start=${D}&end=${D1}`); }
+  try { z = await j(`${H}/zmanim?cfg=json&sec=1&${locQ("z")}&start=${D}&end=${D1}`); }
   catch (e) {
     if (S.loc.type === "geoname" && isFinite(S.loc.lat)) {         // hebcal lacks this town: fall back to coordinates
       S.loc = Object.assign({}, S.loc, { type: "pos" });
-      z = await j(`${H}/zmanim?cfg=json&${locQ("z")}&start=${D}&end=${D1}`);
+      z = await j(`${H}/zmanim?cfg=json&sec=1&${locQ("z")}&start=${D}&end=${D1}`);
     } else throw e;
   }
   const loc = z.location || {};
@@ -441,7 +579,7 @@ async function load() {
 /* ---------- model ---------- */
 function buildRows(data) {
   const { D, D1, z, cal } = data;
-  const T = (k, day = D) => ms(z.times[k] && z.times[k][day]);
+  const T = (k, day = D) => zt(z, k, day);
   const sunrise = T("sunrise");
   const R = [
     { id: "alos", en: "Alos HaShachar", he: "עלות השחר", note: "Dawn · sun 16.1° below", t: T("alotHaShachar"),
@@ -487,7 +625,7 @@ function events(rows) {   // each moment a person might be waiting for
   return ev.sort((a, b) => a.t - b.t);
 }
 function phaseAt(now, z, D) {
-  const T = (k) => ms(z.times[k] && z.times[k][D]);
+  const T = (k) => zt(z, k, D, true);
   const a = T("alotHaShachar"), r = T("sunrise"), s = T("sunset"), n = T("tzeit72min");
   if (now < a || now > n) return "night";
   if (now < r) return "dawn";
@@ -495,7 +633,7 @@ function phaseAt(now, z, D) {
   return "dusk";
 }
 function railColor(r, z, D) {
-  const T = (k) => ms(z.times[k] && z.times[k][D]);
+  const T = (k) => zt(z, k, D, true);
   const t = r.sort, rise = T("sunrise"), set = T("sunset"), noon = T("chatzot");
   if (r.id === "chatzos") return "var(--r-noon)";
   if (t < rise) return t < T("misheyakir") ? "var(--r-night)" : "var(--r-dawn)";
@@ -532,7 +670,7 @@ function drawStars() {
 function drawDial(data, rows, now, live) {
   drawStars();
   const { z, D } = data;
-  const T = (k) => ms(z.times[k] && z.times[k][D]);
+  const T = (k) => zt(z, k, D, true);
   const k = { alos: T("alotHaShachar"), rise: T("sunrise"), set: T("sunset"), rt: T("tzeit72min") };
   $("#arcDay").setAttribute("d", arcPath(Math.PI, 0));
   $("#arcTw").setAttribute("d", arcPath(Math.PI + TW, Math.PI, 8) + arcPath(0, -TW, 8).replace(/^M/, "M"));
@@ -557,8 +695,8 @@ function drawDial(data, rows, now, live) {
     if (isNext) mk += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="9" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1"><animate attributeName="r" values="6;11;6" dur="2.4s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values=".8;.1;.8" dur="2.4s" repeatCount="indefinite"/></circle>`;
   }
   $("#marks").innerHTML = mk;
-  $("#lblRise").textContent = "Netz " + timeTxt(k.rise);
-  $("#lblSet").textContent = "Shkiah " + timeTxt(k.set);
+  $("#lblRise").textContent = "Netz " + timeTxt(safeMin(k.rise, false));
+  $("#lblSet").textContent = "Shkiah " + timeTxt(safeMin(k.set, true));
   const sun = $("#sun"), moon = $("#moon");
   const inArc = live && now >= k.alos && now <= k.rt;
   if (inArc) {
@@ -612,9 +750,9 @@ function renderStatic() {
     </li>`;
   }).join("");
   // facts
-  const T = (k) => ms(z.times[k] && z.times[k][D]);
+  const T = (k) => zt(z, k, D, true);
   const rise = T("sunrise"), set = T("sunset");
-  data.factsHTML = `<span>Sha'ah zmanis <b>${durShort((set - rise) / 12)}</b></span><span>MGA <b>${durShort((set - rise + 144 * 60000) / 12)}</b></span><span>Daylight <b>${dur(set - rise)}</b></span>`;
+  data.factsHTML = `<span>Sha'ah zmanis <b>${durShort((set - rise) / 12)}</b> GRA · <b>${durShort((set - rise + 144 * 60000) / 12)}</b> MGA</span><span>Daylight <b>${dur(set - rise)}</b></span>`;
   renderShabbos(shab);
   renderDay(cal, D);
   renderLive(true);
@@ -624,8 +762,10 @@ function renderShabbos(shab) {
   if (!shab || !shab.items) { el.innerHTML = `<p class="empty" style="padding:0">Shabbos times are unavailable right now.</p>`; return; }
   const items = shab.items;
   const par = items.find((i) => i.category === "parashat");
-  const hol = items.filter((i) => i.category === "holiday" && !/^Erev/.test(i.title));
   const timed = items.filter((i) => (i.category === "candles" || i.category === "havdalah") && i.date.length > 10);
+  // only holidays that fall on this Shabbos itself (the feed covers the whole week, e.g. Sigd on a Monday)
+  const days = new Set(timed.map((i) => i.date.slice(0, 10)).concat(par ? [par.date.slice(0, 10)] : []));
+  const hol = items.filter((i) => i.category === "holiday" && !/^Erev/.test(i.title) && !/Candle/.test(i.title) && (!days.size || days.has(i.date.slice(0, 10))));
   const title = par ? par.title.replace(/^(Parashat|Parshas)\s+/, "") : hol[0] ? hol[0].title : "Shabbos";
   const heb = par ? (par.hebrew || "").replace(/^פרשת\s+/, "") : hol[0] ? hol[0].hebrew : "";
   const day = (iso) => new Date(iso).toLocaleDateString("en-US", { timeZone: tz(), weekday: "long", month: "short", day: "numeric" });
@@ -640,10 +780,13 @@ function renderShabbos(shab) {
 function renderDay(cal, D) {
   const items = ((cal && cal.items) || []).filter((i) => i.date.slice(0, 10) === D);
   const chipCats = new Set(["holiday", "roshchodesh", "omer", "mevarchim", "modern", "parashat"]);
-  const chips = items.filter((i) => chipCats.has(i.category));
+  const chips = items.filter((i) => chipCats.has(i.category) && !(i.category === "holiday" && /Candle/.test(i.title))).map((i) => ({ title: i.title, hebrew: i.hebrew }));
+  const dow = new Date(D + "T12:00:00Z").getUTCDay();
+  if (dow === 5 && !chips.some((c) => /^Erev/.test(c.title))) chips.unshift({ title: "Erev Shabbos", hebrew: "ערב שבת" });
+  if (dow === 6 && !chips.some((c) => /^Shabbat|^Shabbos/.test(c.title))) chips.unshift({ title: "Shabbos Kodesh", hebrew: "שבת קודש" });
   $("#chips").innerHTML = chips.length
     ? chips.map((i) => `<span class="chip">${esc(i.title)}${i.hebrew ? `<span class="he">${esc(i.hebrew)}</span>` : ""}</span>`).join("")
-    : `<span class="chip" style="background:none;padding-left:0;color:var(--faint);font-weight:400">An ordinary weekday — no holidays or special days.</span>`;
+    : `<span class="chip" style="background:none;padding-left:0;color:var(--faint);font-weight:400">An ordinary weekday. No holidays or special days.</span>`;
   const L = [["dafyomi", "Daf Yomi"], ["mishnayomi", "Mishnah Yomi"], ["nachyomi", "Nach Yomi"]];
   const rows = L.map(([cat, k]) => {
     const i = items.find((x) => x.category === cat);
@@ -659,7 +802,7 @@ function renderLive(force) {
   const { D, z, h1 } = data;
   const now = Date.now();
   const live = isToday();
-  const T = (k, day = D) => ms(z.times[k] && z.times[k][day]);
+  const T = (k, day = D) => zt(z, k, day);
   setPhase(live ? phaseAt(now, z, D) : "day");
   const ev = events(data.rows);
   let nx = live ? ev.find((e) => e.t > now) : null;
@@ -749,6 +892,8 @@ $("#altsTgl").checked = !!S.set.alts;
 $("#altsTgl").onchange = (e) => { S.set.alts = e.target.checked; store.set("settings", S.set); $("#zlist").classList.toggle("show-alts", S.set.alts); };
 $("#h24Tgl").checked = !!S.set.h24;
 $("#h24Tgl").onchange = (e) => { S.set.h24 = e.target.checked; store.set("settings", S.set); renderStatic(); };
+$("#secTgl").checked = !!S.set.sec;
+$("#secTgl").onchange = (e) => { S.set.sec = e.target.checked; store.set("settings", S.set); renderStatic(); flyEv = null; if (flyDlg.open) flyRender(); };
 $("#candleSel").value = S.set.candle;
 $("#candleSel").onchange = (e) => { S.set.candle = e.target.value; store.set("settings", S.set); refresh(); };
 
@@ -831,7 +976,457 @@ $("#geoBtn").onclick = () => {
   }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 600000 });
 };
 
+/* ---------- flight zmanim ---------- */
+/* Where the plane WILL be WHEN: the route is projected minute by minute, and each zman is the moment the clock
+   reaches that zman for the spot the plane is over at that moment (a fixed point), with the horizon dip at altitude. */
+/* flight-engine:start */
+const D2R = Math.PI / 180, R2D = 180 / Math.PI, HR = 3600e3, MIN = 6e4, FT = 0.3048;
+function solar(t, lat, lng) {             // NOAA solar position: elevation (deg, geometric) and hour angle (deg, 0 = local noon)
+  const T = (t / 864e5 + 2440587.5 - 2451545) / 36525;
+  const L0 = (((280.46646 + T * (36000.76983 + T * 0.0003032)) % 360) + 360) % 360;
+  const M = (357.52911 + T * (35999.05029 - 0.0001537 * T)) * D2R;
+  const e = 0.016708634 - T * (0.000042037 + 0.0000001267 * T);
+  const C = Math.sin(M) * (1.914602 - T * (0.004817 + 0.000014 * T)) + Math.sin(2 * M) * (0.019993 - 0.000101 * T) + Math.sin(3 * M) * 0.000289;
+  const om = (125.04 - 1934.136 * T) * D2R;
+  const lam = (L0 + C - 0.00569 - 0.00478 * Math.sin(om)) * D2R;
+  const eps = (23 + (26 + (21.448 - T * (46.815 + T * (0.00059 - T * 0.001813))) / 60) / 60 + 0.00256 * Math.cos(om)) * D2R;
+  const dec = Math.asin(Math.sin(eps) * Math.sin(lam));
+  const y = Math.tan(eps / 2) ** 2, L = L0 * D2R;
+  const eot = 4 * R2D * (y * Math.sin(2 * L) - 2 * e * Math.sin(M) + 4 * e * y * Math.sin(M) * Math.cos(2 * L) - 0.5 * y * y * Math.sin(4 * L) - 1.25 * e * e * Math.sin(2 * M));
+  const um = (((t / MIN) % 1440) + 1440) % 1440;
+  const ha = (((((um + eot + 4 * lng) / 4 - 180) % 360) + 540) % 360) - 180;
+  const la = lat * D2R;
+  const el = R2D * Math.asin(Math.max(-1, Math.min(1, Math.sin(la) * Math.sin(dec) + Math.cos(la) * Math.cos(dec) * Math.cos(ha * D2R))));
+  return { el, ha };
+}
+const dipDeg = (ft) => (ft > 0 ? Math.acos(6371008 / (6371008 + ft * FT)) * R2D : 0);   // the horizon drops as you climb
+function gcKm(a, b) {
+  const p1 = a.lat * D2R, p2 = b.lat * D2R, dl = (b.lng - a.lng) * D2R;
+  return 2 * 6371 * Math.asin(Math.sqrt(Math.sin((p2 - p1) / 2) ** 2 + Math.cos(p1) * Math.cos(p2) * Math.sin(dl / 2) ** 2));
+}
+function gcLerp(a, b, f) {                 // a point fraction f of the way along the great circle a -> b
+  const v = (p) => [Math.cos(p.lat * D2R) * Math.cos(p.lng * D2R), Math.cos(p.lat * D2R) * Math.sin(p.lng * D2R), Math.sin(p.lat * D2R)];
+  const A = v(a), B = v(b), om = Math.acos(Math.max(-1, Math.min(1, A[0] * B[0] + A[1] * B[1] + A[2] * B[2])));
+  if (om < 1e-9) return { lat: a.lat, lng: a.lng };
+  const s = Math.sin(om), k1 = Math.sin((1 - f) * om) / s, k2 = Math.sin(f * om) / s;
+  const x = A.map((c, i) => k1 * c + k2 * B[i]);
+  return { lat: Math.atan2(x[2], Math.hypot(x[0], x[1])) * R2D, lng: Math.atan2(x[1], x[0]) * R2D };
+}
+function dayAt(t, lat, lng) {              // sea-level sunrise/sunset of the solar day around t, at a fixed point
+  let noon = t;
+  for (let i = 0; i < 3; i++) noon -= solar(noon, lat, lng).ha * 240000;
+  const cross = (a, b) => {
+    let fa = solar(a, lat, lng).el + 0.8333; const fb = solar(b, lat, lng).el + 0.8333;
+    if ((fa < 0) === (fb < 0)) return NaN;   // polar day or night
+    for (let i = 0; i < 21; i++) { const m = (a + b) / 2, fm = solar(m, lat, lng).el + 0.8333; if ((fm < 0) === (fa < 0)) { a = m; fa = fm; } else b = m; }
+    return (a + b) / 2;
+  };
+  return { noon, rise: cross(noon - 12 * HR, noon), set: cross(noon, noon + 12 * HR) };
+}
+function makePath(F, fix) {
+  const o = F.o, d = F.d;
+  let dep = F.dep, arr = F.arr, cruise = F.cruise != null ? +F.cruise : 35000, eta = null;
+  const pts = [{ t: dep, lat: o.lat, lng: o.lng }];
+  // a real fix (ADS-B or the phone's GPS) re-anchors the projection, as long as it is in the air between the airports
+  const useFix = fix && isFinite(fix.lat) && fix.t > dep - 2 * HR && fix.t < arr + 3 * HR && gcKm(fix, o) > 20 && gcKm(fix, d) > 20;
+  if (useFix) {
+    if (fix.t <= dep) { dep = fix.t - (gcKm(o, fix) / 800) * HR; pts[0].t = dep; }
+    pts.push({ t: fix.t, lat: fix.lat, lng: fix.lng });
+    if (fix.gs > 150) eta = fix.t + (gcKm(fix, d) / (fix.gs * 1.852)) * HR + 8 * MIN;
+    else if (fix.t >= arr - 10 * MIN) eta = fix.t + (gcKm(fix, d) / 820) * HR + 10 * MIN;
+    if (eta) arr = Math.max(eta, fix.t + 10 * MIN);
+    if (fix.alt > 20000) cruise = fix.alt;
+  }
+  pts.push({ t: arr, lat: d.lat, lng: d.lng });
+  const oA = +o.elev || 0, dA = +d.elev || 0;
+  const altAt = (t) => {
+    if (useFix && fix.alt != null && Math.abs(t - fix.t) < 2 * MIN) return fix.alt;
+    return Math.max(0, Math.min(cruise, oA + ((cruise - oA) * (t - dep)) / (25 * MIN), dA + ((cruise - dA) * (arr - t)) / (30 * MIN)));
+  };
+  const posAt = (t) => {
+    t = Math.min(arr, Math.max(dep, t));
+    let i = 0;
+    while (i < pts.length - 2 && t > pts[i + 1].t) i++;
+    const a = pts[i], b = pts[i + 1], p = gcLerp(a, b, b.t > a.t ? (t - a.t) / (b.t - a.t) : 1);
+    p.alt = altAt(t);
+    return p;
+  };
+  const memo = new Map();
+  const day = (t) => { let v = memo.get(t); if (!v) { const p = posAt(t); v = dayAt(t, p.lat, p.lng); if (memo.size < 4000) memo.set(t, v); } return v; };
+  return { dep, arr, eta, cruise, fixed: !!useFix, posAt, day };
+}
+function scan(path, v, step = 30e3, lim = Infinity) {   // every sign change of v over the flight, refined by bisection
+  const out = [], n = Math.max(1, Math.ceil((path.arr - path.dep) / step));
+  let ta = path.dep, va = v(ta);
+  for (let i = 1; i <= n; i++) {
+    const tb = path.dep + ((path.arr - path.dep) * i) / n, vb = v(tb);
+    if (isFinite(va) && isFinite(vb) && (va < 0) !== (vb < 0) && Math.abs(va) < lim && Math.abs(vb) < lim) {
+      let a = ta, b = tb, fa = va;
+      for (let k = 0; k < 20; k++) { const m = (a + b) / 2, fm = v(m); if (!isFinite(fm)) break; if ((fm < 0) === (fa < 0)) { a = m; fa = fm; } else b = m; }
+      out.push({ t: (a + b) / 2, up: va < 0 });
+    }
+    ta = tb; va = vb;
+  }
+  return out;
+}
+function flightEvents(path, round = (t) => t) {
+  const P = (t) => path.posAt(t);
+  const el = (deg) => (t) => { const p = P(t); return solar(t, p.lat, p.lng).el - deg; };
+  const seen = (t) => { const p = P(t); return solar(t, p.lat, p.lng).el + 0.8333 + dipDeg(p.alt); };   // sunrise/sunset as seen from the seat
+  const midnight = (t) => {                 // halfway between this evening's shkiah and the next netz, under the plane
+    const p = P(t), e = dayAt(t - 12 * HR, p.lat, p.lng), m = dayAt(t + 12 * HR, p.lat, p.lng);
+    return isFinite(e.set) && isFinite(m.rise) ? t - (e.set + m.rise) / 2 : NaN;
+  };
+  const hours = (h, mga) => (t) => {        // t minus the zman for the point under the plane at t: zero when they meet
+    const d = path.day(t);
+    if (!isFinite(d.rise) || !isFinite(d.set)) return NaN;
+    const start = mga ? d.rise - 72 * MIN : d.rise, len = (d.set - d.rise + (mga ? 144 * MIN : 0)) / 12;
+    return t - (start + h * len);
+  };
+  const up = (l) => l.filter((c) => c.up).map((c) => c.t), down = (l) => l.filter((c) => !c.up).map((c) => c.t);
+  const fp = (h, mga) => up(scan(path, hours(h, mga), 120e3, 3 * HR));
+  const R = [];
+  const one = (id, en, he, note, ts, deadline) => ts.forEach((t) => R.push({ id, en, he, note, deadline, t }));
+  const two = (id, en, he, note, la, A, lb, B, deadline) => {
+    const used = new Set();
+    for (const a of A) {
+      let bi = -1;
+      B.forEach((b, i) => { if (!used.has(i) && Math.abs(b - a) < 3 * HR && (bi < 0 || Math.abs(b - a) < Math.abs(B[bi] - a))) bi = i; });
+      if (bi >= 0) used.add(bi);
+      R.push({ id, en, he, note, deadline, dual: [[la, a], [lb, bi >= 0 ? B[bi] : NaN]] });
+    }
+    B.forEach((b, i) => { if (!used.has(i)) R.push({ id, en, he, note, deadline, dual: [[la, NaN], [lb, b]] }); });
+  };
+  one("alos", "Alos HaShachar", "עלות השחר", "Dawn · sun 16.1° below", up(scan(path, el(-16.1))), false);
+  one("mish", "Misheyakir", "משיכיר", "Earliest tallis & tefillin · 11.5°", up(scan(path, el(-11.5))), false);
+  two("netz", "Netz HaChama", "הנץ החמה", "Sunrise", "Plane", up(scan(path, seen)), "Ground", up(scan(path, el(-0.8333))), false);
+  two("shma", "Sof Zman Krias Shema", "סוף זמן ק״ש", "", "MGA", fp(3, true), "GRA", fp(3, false), true);
+  two("tfila", "Sof Zman Tefillah", "סוף זמן תפילה", "", "MGA", fp(4, true), "GRA", fp(4, false), true);
+  one("chatzos", "Chatzos", "חצות היום", "Midday", fp(6, false), true);
+  one("mg", "Mincha Gedolah", "מנחה גדולה", "Earliest Mincha", fp(6.5, false), false);
+  one("mk", "Mincha Ketanah", "מנחה קטנה", "", fp(9.5, false), false);
+  one("plag", "Plag HaMincha", "פלג המנחה", "", fp(10.75, false), false);
+  two("shkia", "Shkiah", "שקיעת החמה", "Sunset", "Plane", down(scan(path, seen)), "Ground", down(scan(path, el(-0.8333))), true);
+  one("tzeis", "Tzeis HaKochavim", "צאת הכוכבים", "Nightfall · 8.5°", down(scan(path, el(-8.5))), false);
+  one("cn", "Chatzos HaLailah", "חצות הלילה", "Midnight", up(scan(path, midnight, 120e3, 3 * HR)), true);
+  for (const r of R) {
+    if (r.dual) r.dual = r.dual.map(([op, t]) => [op, round(t, r.deadline)]);
+    else r.t = round(r.t, r.deadline);
+    const ts = r.dual ? r.dual.map((x) => x[1]).filter(isFinite) : [r.t];
+    r.sort = ts.length ? Math.min(...ts) : NaN;
+    r.at = P(r.sort);
+    r.sunEl = isFinite(r.sort) ? solar(r.sort, r.at.lat, r.at.lng).el : 0;
+  }
+  return R.filter((r) => isFinite(r.sort)).sort((a, b) => a.sort - b.sort);
+}
+/* flight-engine:end */
+
+const flyDlg = $("#flyDlg");
+let F = store.get("flight", null);
+const niceFlight = (q) => String(q).replace(/^([A-Z0-9]{2})(\d+[A-Z]?)$/, "$1 $2");   // "LY28" -> "LY 28"
+if (F && !(F.o && F.d && isFinite(F.dep))) F = null;
+if (F) F.q = niceFlight(F.q);
+let flyEv = null, flyPath = null, flyCalcAt = 0, flyLiveOff = false, flyLiveAt = 0, flyNote = "", flyNextKey = "";
+const saveF = () => store.set("flight", F);
+const flyZone = () => (F && S.set.flyZone === "o" ? F.o.tz : F && S.set.flyZone === "d" ? F.d.tz : browserTz());
+const durH = (m) => { const t = Math.round(Math.max(0, m) / MIN), h = Math.floor(t / 60); return h ? `${h}h ${String(t % 60).padStart(2, "0")}m` : `${t % 60}m`; };
+const fmtPos = (p) => `${Math.abs(p.lat).toFixed(0)}°${p.lat >= 0 ? "N" : "S"} ${Math.abs(p.lng).toFixed(0)}°${p.lng >= 0 ? "E" : "W"}`;
+const fmtAlt = (ft) => (ft > 1500 ? `${(Math.round(ft / 500) * 500).toLocaleString("en-US")} ft` : "near the ground");
+const apCode = (a) => a.iata || a.icao || "";
+function tzOff(zone, t) {
+  const p = {};
+  for (const x of new Intl.DateTimeFormat("en-US", { timeZone: zone, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", second: "2-digit" }).formatToParts(new Date(t))) p[x.type] = x.value;
+  return Date.UTC(+p.year, p.month - 1, +p.day, +p.hour % 24, +p.minute, +p.second) - Math.floor(t / 1000) * 1000;
+}
+function fromLocal(v, zone) {             // "2026-11-06T19:30" in zone -> epoch ms
+  const m = /^(\d+)-(\d+)-(\d+)T(\d+):(\d+)/.exec(v || "");
+  if (!m) return NaN;
+  const u = Date.UTC(+m[1], m[2] - 1, +m[3], +m[4], +m[5]);
+  return u - tzOff(zone, u - tzOff(zone, u));
+}
+const toLocal = (t, zone) => new Date(t + tzOff(zone, t)).toISOString().slice(0, 16);
+const estArr = (R, dep) => Math.round((dep + (gcKm(R.o, R.d) / 840 + 0.5) * HR) / (5 * MIN)) * 5 * MIN;
+function skyCol(el, morning) {
+  if (el > 20) return "var(--r-noon)";
+  if (el > 3) return "var(--r-day)";
+  if (el > -10) return morning ? "var(--r-dawn)" : "var(--r-dusk)";
+  return "var(--r-night)";
+}
+function skyHex(el) {
+  if (el > 8) return "#5C9BE0";
+  if (el > 1) return "#E9B562";
+  if (el > -4) return "#DD7F57";
+  if (el > -9) return "#7A4E8E";
+  if (el > -14) return "#2E3274";
+  return "#0E1433";
+}
+
+async function findFlight(q) {
+  const cs = q.toUpperCase().replace(/[^A-Z0-9]/g, "");
+  const d = await j(`https://api.adsbdb.com/v0/callsign/${encodeURIComponent(cs)}`);
+  const fr = d && d.response && d.response.flightroute;
+  if (!fr || !fr.origin || !fr.destination) throw new Error("not found");
+  const ap = (a) => ({ iata: a.iata_code, icao: a.icao_code, name: a.name, city: a.municipality || a.name, lat: a.latitude, lng: a.longitude, elev: a.elevation || 0, cc: a.country_iso_name });
+  const o = ap(fr.origin), dd = ap(fr.destination);
+  const zones = await Promise.all([o, dd].map((a) => j(`https://api.open-meteo.com/v1/forecast?latitude=${a.lat}&longitude=${a.lng}&timezone=auto&forecast_days=1`).then((r) => r.timezone).catch(() => null)));
+  o.tz = zones[0] || browserTz(); dd.tz = zones[1] || browserTz();
+  return { q: niceFlight(fr.callsign_iata || cs), cs: fr.callsign_icao || cs, airline: fr.airline ? fr.airline.name : "", o, d: dd };
+}
+function flyCalc(force) {
+  if (!F) { flyEv = null; flyPath = null; return; }
+  if (!force && flyEv && Date.now() - flyCalcAt < 60e3) return;
+  flyPath = makePath(F, F.fix);
+  flyEv = flightEvents(flyPath, safeMin);
+  flyCalcAt = Date.now();
+}
+function flyFlat() {
+  const out = [];
+  for (const r of flyEv || []) (r.dual || [[null, r.t]]).forEach(([op, t]) => isFinite(t) && out.push({ r, op, t }));
+  return out.sort((a, b) => a.t - b.t);
+}
+const opWord = (op) => ({ Plane: "as seen from the plane", Ground: "on the ground below" }[op] || op);
+function flySetup() {
+  $("#flyIntro").hidden = !!F;
+  $("#flySetup").hidden = !F;
+  if (!F) return;
+  $("#fNum").value = F.q;
+  const mi = Math.round(gcKm(F.o, F.d) * 0.621371);
+  $("#fRoute").innerHTML = `
+    <div class="ap"><b>${esc(apCode(F.o))}</b><span>${esc(F.o.city)}</span></div>
+    <div class="route-mid"><svg viewBox="0 0 200 22" preserveAspectRatio="none" aria-hidden="true"><path d="M4 20 Q100 -8 196 20" fill="none" stroke="currentColor" stroke-width="1.3" stroke-dasharray="3 4" vector-effect="non-scaling-stroke"/></svg>
+      <span class="al">${esc([F.airline, F.q].filter(Boolean).join(" "))}</span>${mi.toLocaleString("en-US")} mi</div>
+    <div class="ap r"><b>${esc(apCode(F.d))}</b><span>${esc(F.d.city)}</span></div>`;
+  $("#fDepL").textContent = `Takeoff · ${apCode(F.o)} time`;
+  $("#fArrL").textContent = `Landing · ${apCode(F.d)} time`;
+  $("#fDep").value = toLocal(F.dep, F.o.tz);
+  $("#fArr").value = toLocal(F.arr, F.d.tz);
+  $("#fAlt").value = String(F.cruise || 35000);
+}
+function flyRender() {
+  flySetup();
+  const out = $("#flyOut");
+  if (!F) { out.hidden = true; return; }
+  flyCalc(false);
+  const P = flyPath, now = Date.now(), zone = flyZone(), flat = flyFlat();
+  // the fix line
+  const fx = $("#fFix"), fix = F.fix, fresh = fix && P.fixed;
+  const etaTxt = P.eta ? ` · lands ≈ ${timeTxt(safeMin(P.eta, false), F.d.tz)} ${esc(apCode(F.d))}` : "";
+  fx.className = "st" + (fresh ? " on" : "");
+  fx.innerHTML = `<i></i><span>${flyNote ? esc(flyNote) : fresh
+    ? `${fix.src === "GPS" ? "Phone GPS" : "Live ADS-B"} fix ${durH(now - fix.t)} ago: ${fmtPos(fix)}${fix.alt ? ", " + fmtAlt(fix.alt) : ""}${fix.gs > 150 ? `, ${Math.round(fix.gs)} kt` : ""}${etaTxt}`
+    : `Position estimated from the schedule${flyLiveOff ? "" : ". Live tracking turns on near takeoff"}`}</span>`;
+  // hero: the next zman, where you'll be, and how long until it
+  const nx = flat.find((e) => e.t > now);
+  const after = now > P.arr;
+  let hero;
+  if (after) {
+    hero = `<div class="fly-hero" style="--h1:#141943;--h2:#5A3D7C"><div class="eyebrow">Landed</div><div class="nm">Welcome to ${esc(F.d.city)}</div>
+      <div class="where">From here, use the regular zmanim for ${esc(F.d.city)}.</div></div>`;
+  } else if (nx) {
+    const at = P.posAt(nx.t), elNow = (() => { const p = P.posAt(now); return solar(now, p.lat, p.lng).el; })();
+    const c = elNow > 4 ? ["#1C4A91", "#4F8FD6"] : elNow > -6 ? ["#2A2C6B", "#C9714F"] : elNow > -12 ? ["#191F50", "#5E4A8A"] : ["#060A1C", "#24306A"];
+    hero = `<div class="fly-hero" style="--h1:${c[0]};--h2:${c[1]}">
+      <div class="eyebrow">${now < P.dep ? `Takeoff in ${durH(P.dep - now)} · first zman in the air` : "Next zman in the air"}</div>
+      <div class="nm">${esc(nx.r.en)}${nx.op ? ` <span style="opacity:.7">(${esc(opWord(nx.op))})</span>` : ""}<span class="he">${esc(nx.r.he)}</span></div>
+      <div class="tm num">${timeHTML(nx.t, zone)}</div>
+      <div class="countdown num"><i></i><span id="fCd">in ${dur(nx.t - now)}</span></div>
+      <div class="where">You'll be over ${fmtPos(at)} at ${fmtAlt(at.alt)}, ${durH(nx.t - P.dep)} after takeoff.</div></div>`;
+  } else {
+    hero = `<div class="fly-hero"><div class="eyebrow">In the air</div><div class="nm">No more zmanim before landing</div>
+      <div class="where">Lands ${timeTxt(P.arr, zone)}. After that, use the times for ${esc(F.d.city)}.</div></div>`;
+  }
+  // davening windows, built from the same projected times
+  const first = (id, op, t0 = -Infinity) => { for (const e of flat) if (e.r.id === id && (!op || e.op === op) && e.t > t0) return e.t; return NaN; };
+  const W = [];
+  const win = (k, he, s, sl, e, el2, extra) => { if (isFinite(s) || isFinite(e)) W.push({ k, he, s, sl, e, el: el2, extra }); };
+  { const s = first("mish"), e = first("tfila", "GRA", isFinite(s) ? s : -Infinity), m = first("tfila", "MGA", isFinite(s) ? s : -Infinity);
+    win("Shacharis", "שחרית", s, "misheyakir", e, "sof zman tefillah (GRA)", isFinite(m) ? `MGA: by ${timeTxt(m, zone)}` : ""); }
+  { const s = first("mg"), e = first("shkia", "Ground", isFinite(s) ? s : -Infinity); win("Mincha", "מנחה", s, "mincha gedolah", e, "shkiah below"); }
+  { const s = first("tzeis"); win("Maariv", "מעריב", s, "tzeis", NaN, ""); }
+  const T = (t) => timeHTML(t, zone);
+  const winHTML = W.length ? `<div class="windows">${W.map((w) => {
+    const v = isFinite(w.s) && isFinite(w.e) ? `${T(w.s)} – ${T(w.e)}` : isFinite(w.s) ? `from ${T(w.s)}` : `until ${T(w.e)}`;
+    const s = isFinite(w.s) && isFinite(w.e) ? `${w.sl} to ${w.el}` : isFinite(w.s) ? `${w.sl}${w.k === "Maariv" ? "" : "; ends after landing"}` : `${w.el}; started before takeoff`;
+    const done = isFinite(w.e) ? w.e < now : false;
+    return `<div class="win"${done ? ' style="opacity:.5"' : ""}><div class="k">${w.k}<span class="he">${w.he}</span></div><div class="v num">${v}</div><div class="s">${esc(s)}${w.extra ? " · " + esc(w.extra) : ""}</div></div>`;
+  }).join("")}</div>` : "";
+  // timeline: the sky the plane flies through, with every zman on it
+  const span = P.arr - P.dep, X = (t) => Math.max(0, Math.min(100, ((t - P.dep) / span) * 100));
+  let stops = [];
+  for (let i = 0; i <= 48; i++) { const t = P.dep + (span * i) / 48, p = P.posAt(t); stops.push(`${skyHex(solar(t, p.lat, p.lng).el)} ${(i / 48 * 100).toFixed(1)}%`); }
+  const short = { alos: "Alos", mish: "Misheyakir", netz: "Netz", shma: "Shema", tfila: "Tefillah", chatzos: "Chatzos", mg: "Mincha", mk: "M. Ketanah", plag: "Plag", shkia: "Shkiah", tzeis: "Tzeis", cn: "Chatzos" };
+  const last = [-99, -99];
+  let marks = "", labels = "";
+  for (const r of flyEv) {
+    const x = X(r.sort);
+    marks += `<i class="tl-m${r.sort < now ? " past" : ""}" style="left:${x.toFixed(2)}%" title="${esc(r.en)}"></i>`;
+    const row = x - last[0] >= 15 ? 0 : x - last[1] >= 15 ? 1 : -1;
+    if (row < 0) continue;
+    last[row] = x;
+    labels += `<span class="tl-l${row ? " dn" : ""}${x < 7 ? " s" : x > 93 ? " e" : ""}" style="left:${x.toFixed(2)}%">${short[r.id] || ""}</span>`;
+  }
+  const nowMark = now > P.dep && now < P.arr ? `<b class="tl-now" style="left:${X(now).toFixed(2)}%" title="Now"></b>` : "";
+  const tl = `<div class="tl" aria-hidden="true"><div class="tl-bar" style="background:linear-gradient(90deg,${stops.join(",")})">${marks}${nowMark}</div>${labels}
+    <div class="tl-ends"><span><b>${esc(apCode(F.o))}</b> ${timeTxt(P.dep, F.o.tz)}</span><span>${durH(span)}</span><span><b>${esc(apCode(F.d))}</b> ${timeTxt(P.arr, F.d.tz)}</span></div></div>`;
+  const zoneBtn = (k, label) => `<button type="button" data-z="${k}" aria-pressed="${(S.set.flyZone || "phone") === k}">${esc(label)}</button>`;
+  const bar = `<div class="fly-bar"><span><span class="seg-l">Times in</span><span class="seg" role="group" aria-label="Show times in">${zoneBtn("phone", "This phone")}${zoneBtn("o", apCode(F.o))}${zoneBtn("d", apCode(F.d))}</span></span></div>`;
+  // the list
+  const nk = nx ? nx.r : null;
+  const list = flyEv.length ? `<div class="fly-list"><ol class="zlist">${flyEv.map((r) => {
+    const end = r.dual ? Math.max(...r.dual.map((x) => x[1]).filter(isFinite)) : r.t;
+    const past = end <= now, morning = r.at && solar(r.sort, r.at.lat, r.at.lng).ha < 0;
+    const time = r.dual
+      ? `<div class="zt dual num">${r.dual.filter((x) => isFinite(x[1])).map(([op, t]) => `<div><span class="op">${op.toUpperCase()}</span>${timeHTML(t, zone)}</div>`).join("")}</div>`
+      : `<div class="zt num">${timeHTML(r.t, zone)}</div>`;
+    const note = [r.note, `over ${fmtPos(r.at)}`, fmtAlt(r.at.alt)].filter(Boolean).join(" · ");
+    return `<li class="z${past ? " past" : ""}${r === nk ? " next" : ""}" style="--rail:${skyCol(r.sunEl, morning)}"><span class="dot" aria-hidden="true"></span>
+      <div class="zn"><span class="en">${esc(r.en)}${r === nk ? '<span class="badge">Next</span>' : ""}</span><span class="he">${esc(r.he)}</span><span class="note">${esc(note)}</span></div>${time}</li>`;
+  }).join("")}</ol></div>` : `<p class="fly-msg">No zmanim fall between takeoff and landing on this flight.</p>`;
+  const note = `<p class="fly-note"><b>How this works.</b> The plane is placed along the great-circle route from ${esc(apCode(F.o))} to ${esc(apCode(F.d))} at a steady speed, climbing for the first 25 minutes and descending for the last 30. A live ADS-B or GPS fix re-anchors it. Each zman is the moment it falls <i>for the spot you'll be over at that moment</i>.
+    Netz and shkiah are given as seen from the plane (at ${fmtAlt(P.cruise)} the horizon drops about ${dipDeg(P.cruise).toFixed(1)}°, so the sun rises earlier and sets later) and on the ground below. Halachic hours use sea-level sunrise and sunset under the plane. A late or rerouted flight moves these times, so leave a margin. Opinions differ on zmanim in flight; ask your rav.</p>
+    <div class="fly-foot"><button class="btn ghost" type="button" data-go="o">${esc(F.o.city)} zmanim</button><button class="btn ghost" type="button" data-go="d">${esc(F.d.city)} zmanim</button><button class="btn ghost" type="button" id="fClear">Clear flight</button></div>`;
+  out.innerHTML = hero + winHTML + bar + tl + list + note;
+  out.hidden = false;
+  out.style.display = "grid"; out.style.gap = "18px";
+  flyNextKey = nx ? nx.t + (nx.op || "") : "";
+}
+function flyChrome() {           // the header pill and the in-flight bar in the hero
+  const now = Date.now(), arr = flyPath ? flyPath.arr : F ? F.arr : 0;
+  const soon = F && now > F.dep - 12 * HR && now < arr + HR;
+  const tag = $("#flyTag");
+  tag.hidden = !soon;
+  if (soon && tag.textContent !== F.q) tag.textContent = F.q;
+  $("#flyBtn").classList.toggle("icon", !soon);
+  const bar = $("#flyBar"), air = F && isToday() && now > F.dep - 30 * MIN && now < arr;
+  if (!air) { bar.hidden = true; return; }
+  flyCalc(false);
+  const nx = flyFlat().find((e) => e.t > now);
+  const h = `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M6.6 14.2 8 13l1.4 1.2v-1.6L8.6 12V9.2l5.4 1.6V9.4L8.6 6.6V2.8C8.6 2.1 8.3 1.6 8 1.6s-.6.5-.6 1.2v3.8L2 9.4v1.4l5.4-1.6V12l-.8.6Z"/></svg><span>${now < F.dep ? "Boarding soon" : "In the air"} · <b>${esc(F.q)}</b>${nx ? ` · ${esc(nx.r.en)}${nx.op === "Plane" ? " (from the plane)" : nx.op === "Ground" ? " (below)" : nx.op ? ` (${nx.op})` : ""} in ${durH(nx.t - now)}` : ""}</span>`;
+  if (bar.dataset.h !== h) { bar.innerHTML = h; bar.dataset.h = h; }
+  bar.hidden = false;
+}
+async function flyLive(force) {   // live ADS-B through the site's own /api/adsb proxy (the public feeds don't allow browser calls)
+  if (!F || flyLiveOff) return;
+  const now = Date.now();
+  if (now < F.dep - HR || now > (flyPath ? flyPath.arr : F.arr) + 2 * HR) return;
+  if (!force && now - flyLiveAt < 55e3) return;
+  flyLiveAt = now;
+  try {
+    const r = await fetch(`api/adsb?callsign=${encodeURIComponent(F.cs)}`);
+    if (r.status === 404) { flyLiveOff = true; return; }
+    if (!r.ok) return;
+    const d = await r.json();
+    const a = (d.ac || []).find((x) => isFinite(x.lat) && isFinite(x.lon));
+    if (!a) return;
+    const alt = typeof a.alt_geom === "number" ? a.alt_geom : typeof a.alt_baro === "number" ? a.alt_baro : 0;
+    const fix = { t: (d.now || now) - (a.seen_pos || 0) * 1000, lat: a.lat, lng: a.lon, alt, gs: a.gs || 0, src: "ADS-B" };
+    if (!F.fix || fix.t > F.fix.t) { F.fix = fix; flyNote = ""; saveF(); flyCalc(true); if (flyDlg.open) flyRender(); flyChrome(); }
+  } catch {}
+}
+function flyOpen() {
+  flyNote = "";
+  flyRender();
+  flyDlg.showModal();
+  if (!F) setTimeout(() => $("#fNum").focus(), 30);
+  flyLive(true);
+}
+$("#flyBtn").onclick = flyOpen;
+$("#flyBar").onclick = flyOpen;
+$("#flyClose").onclick = () => flyDlg.close();
+flyDlg.addEventListener("click", (e) => { if (e.target === flyDlg) flyDlg.close(); });
+$("#flyForm").onsubmit = async (e) => {
+  e.preventDefault();
+  const q = $("#fNum").value.trim();
+  if (!q) return;
+  const btn = $("#fFind"), msg = $("#flyMsg");
+  btn.disabled = true; btn.textContent = "Finding…"; msg.hidden = true;
+  try {
+    const R = await findFlight(q);
+    const same = F && F.cs === R.cs;
+    const dep = same ? F.dep : Math.ceil(Date.now() / HR) * HR;
+    F = Object.assign(R, { dep, arr: same ? F.arr : estArr(R, dep), arrSet: same ? !!F.arrSet : false, cruise: same ? F.cruise : 35000, fix: same ? F.fix : null });
+    flyLiveOff = false; flyNote = "";
+    saveF(); flyCalc(true); flyRender(); flyChrome(); flyLive(true);
+    if (!same) setTimeout(() => $("#fDep").focus(), 30);
+  } catch {
+    msg.hidden = false;
+    msg.textContent = navigator.onLine === false
+      ? "You're offline. Connect to look up a new flight; a saved flight keeps working offline."
+      : `Couldn't find a route for “${q}”. Check the flight number, like UA 90 or LY 28.`;
+  } finally { btn.disabled = false; btn.textContent = "Find"; }
+};
+$("#fDep").onchange = (e) => {
+  const t = fromLocal(e.target.value, F.o.tz);
+  if (!isFinite(t)) return;
+  F.dep = t;
+  if (!F.arrSet || F.arr <= t) { F.arr = estArr(F, t); F.arrSet = false; }
+  saveF(); flyCalc(true); flyRender(); flyChrome();
+};
+$("#fArr").onchange = (e) => {
+  const t = fromLocal(e.target.value, F.d.tz);
+  if (isFinite(t) && t > F.dep) { F.arr = t; F.arrSet = true; saveF(); }
+  flyCalc(true); flyRender(); flyChrome();
+};
+$("#fAlt").onchange = (e) => { F.cruise = +e.target.value; saveF(); flyCalc(true); flyRender(); };
+$("#fGps").onclick = () => {
+  if (!navigator.geolocation) { flyNote = "This browser can't share its location."; flyRender(); return; }
+  flyNote = "Getting a GPS fix… (a window seat helps)"; flyRender();
+  navigator.geolocation.getCurrentPosition((p) => {
+    const c = p.coords;
+    const fix = { t: p.timestamp || Date.now(), lat: c.latitude, lng: c.longitude, alt: c.altitude != null ? c.altitude / FT : null, gs: c.speed != null ? c.speed * 1.943844 : 0, src: "GPS" };
+    if (gcKm(fix, F.o) < 20 || gcKm(fix, F.d) < 20) flyNote = "You're still at the airport. Try again once you're in the air.";
+    else { F.fix = fix; flyNote = ""; saveF(); flyCalc(true); }
+    flyRender(); flyChrome();
+  }, (err) => { flyNote = err.code === 1 ? "Location permission was declined." : "Couldn't get a GPS fix. Try again by a window."; flyRender(); },
+  { enableHighAccuracy: true, timeout: 20000, maximumAge: 30000 });
+};
+$("#flyOut").addEventListener("click", (e) => {
+  const z = e.target.closest("[data-z]");
+  if (z) { S.set.flyZone = z.dataset.z; store.set("settings", S.set); flyRender(); return; }
+  const g = e.target.closest("[data-go]");
+  if (g) {
+    const a = F[g.dataset.go], when = g.dataset.go === "o" ? flyPath.dep : flyPath.arr;
+    flyDlg.close();
+    S.loc = { type: "pos", lat: a.lat, lng: a.lng, tz: a.tz, cc: a.cc, name: a.city, sub: a.name };
+    S.date = ymdIn(a.tz, new Date(when)) === ymdIn(a.tz) ? null : ymdIn(a.tz, new Date(when));
+    refresh().then(() => pushRecent(S.loc));
+    return;
+  }
+  if (e.target.closest("#fClear")) {
+    F = null; flyEv = null; flyPath = null; store.set("flight", null);
+    $("#fNum").value = ""; flyRender(); flyChrome(); $("#fNum").focus();
+  }
+});
+setInterval(() => {
+  if (!F) return;
+  flyChrome();
+  flyLive(false);
+  if (!flyDlg.open || !flyEv) return;
+  const now = Date.now(), nx = flyFlat().find((e) => e.t > now), key = nx ? nx.t + (nx.op || "") : "";
+  if (key !== flyNextKey || now - flyCalcAt > 60e3) { flyCalc(now - flyCalcAt > 60e3); flyRender(); }
+  else if (nx) { const cd = $("#fCd"); if (cd) cd.textContent = "in " + dur(nx.t - now); }
+}, 1000);
+
+/* ---------- keyboard ---------- */
+document.addEventListener("keydown", (e) => {
+  if (e.metaKey || e.ctrlKey || e.altKey || dlg.open || flyDlg.open) return;
+  if (e.target.closest && e.target.closest("input,select,textarea,[contenteditable]")) return;
+  const k = e.key.toLowerCase();
+  if (k === "arrowleft") $("#prevDay").click();
+  else if (k === "arrowright") $("#nextDay").click();
+  else if (k === "t") setDate(null);
+  else if (k === "l" || k === "/") $("#locBtn").click();
+  else if (k === "f") flyOpen();
+  else return;
+  e.preventDefault();
+});
+
+/* ---------- offline: the page and the last-seen data keep working on a plane ---------- */
+if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
+
 refresh();
+flyChrome();
+if (location.hash === "#flight") flyOpen();       // deep link / home-screen shortcut
 })();
 </script>
 </body>
