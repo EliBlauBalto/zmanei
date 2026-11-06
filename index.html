@@ -388,6 +388,8 @@ details.opt .fld{margin-top:8px;max-width:240px}
 .fly-hero .oc{font-size:13px;font-weight:600;opacity:.82;margin-top:6px}
 .fly-hero .pair .oc{font-size:12.5px;margin:0}
 .fly-hero .where{text-wrap:pretty}
+.fly-hero .nw{white-space:nowrap}
+.fly-hero .tm .cd2{margin:0 0 0 4px;align-self:center;font-size:13.5px;padding:7px 12px 7px 10px}
 .globe{width:clamp(128px,30vw,232px);aspect-ratio:1;display:block}
 .fly-hero .tag{display:inline-block;margin:8px 0 6px;font:700 11px/1 var(--f-ui);letter-spacing:.06em;padding:5px 9px;border-radius:999px;background:rgba(255,255,255,.16)}
 .fly-hero .pair{margin-top:10px;font-size:14px}
@@ -1796,6 +1798,11 @@ function flyZoneSeg() {
 const GPS_UI = !matchMedia("(hover: hover) and (pointer: fine)").matches;
 const stamp = (t, zn) => `${timeTxt(t, zn)} ${tzAbbr(zn, t)}`;                    // "10:48 pm Israel Time", the zone as it reads at that moment
 const dated = (t, zn) => `${stamp(t, zn)}, ${dayName(t, zn)}`;                        // "... , Fri, Nov 6"
+function clock(zn) {
+  let lz = "", ld = "";
+  return (t) => { const z = tzAbbr(zn, t), d = dayName(t, zn), meta = [z !== lz ? z : "", d !== ld ? d : ""].filter(Boolean); lz = z; ld = d; return { tm: timeTxt(t, zn), meta }; };
+}
+const asText = (x) => x.tm + (x.meta.length ? " " + x.meta.join(", ") : "");          // "10:52 pm Israel Time, Fri, Nov 6", then "11:03 pm"
 const opTag = (op) => ({ Plane: "From the plane", Ground: "On the ground" }[op] || op);
 function flyRender() {
   const step = flyStep();
@@ -1821,25 +1828,29 @@ function flyRender() {
     const at = P.posAt(nx.t), pn = P.posAt(now), elNow = solar(now, pn.lat, pn.lng).el;
     const c = elNow > 4 ? ["#173F82", "#3F7BC4"] : elNow > -6 ? ["#2A2C6B", "#B4664B"] : elNow > -12 ? ["#191F50", "#523F80"] : ["#060A1C", "#1F2A60"];
     const twin = nx.r.dual && (nx.op === "Plane" || nx.op === "Ground") ? nx.r.dual.find((d) => d[0] !== nx.op && isFinite(d[1])) : null;
-    let pairTxt = "";
+    let pairTxt = null;
     if (twin) {
       const pl = nx.op === "Plane" ? nx.t : twin[1], gr = nx.op === "Ground" ? nx.t : twin[1], m = Math.round(Math.abs(pl - gr) / 6e4);
       const sets = nx.r.id === "shkia";
-      const dayDiff = dayName(twin[1], zone) !== dayName(nx.t, zone) ? `, ${dayName(twin[1], zone)}` : "";
-      pairTxt = `<div class="pair">${esc(opTag(twin[0]))}: <b class="num">${timeTxt(twin[1], zone)}</b> <small class="oc">${esc(tzAbbr(zone, twin[1]))}${esc(dayDiff)} · ${esc(other.city)} ${esc(stamp(twin[1], other.tz))}</small><span>${m} minute${m === 1 ? "" : "s"} ${sets ? "later" : "earlier"} than the ground below: at ${fmtAlt(at.alt)} the horizon dips.</span></div>`;
+      pairTxt = { t: twin[1], op: twin[0], tail: `${m} minute${m === 1 ? "" : "s"} ${sets ? "later" : "earlier"} than the ground below: at ${fmtAlt(at.alt)} the horizon dips.</span></div>` };
+    }
+    const PC = clock(zone), OC = clock(other.tz), m0 = PC(nx.t), o0 = OC(nx.t);
+    let pairHTML = "";
+    if (pairTxt) {
+      const m1 = PC(pairTxt.t), o1 = OC(pairTxt.t);
+      pairHTML = `<div class="pair">${esc(opTag(pairTxt.op))}: <b class="num">${esc(m1.tm)}</b>${m1.meta.length ? ` <small class="oc">${esc(m1.meta.join(", "))}</small>` : ""} <small class="oc">· ${esc(other.city)} ${esc(asText(o1))}</small><span>${pairTxt.tail}`;
     }
     hero = `<div class="fly-hero" style="--h1:${c[0]};--h2:${c[1]}">
       <div class="fh-top">
         <div class="eyebrow">${now < P.dep ? `First zman · takeoff in ${durH(P.dep - now)}` : "Next zman"} · ${liveFix ? "live" : "projected"}</div>
         <div class="nm">${esc(nx.r.en)}<span class="he" lang="he">${esc(nx.r.he)}</span></div>
         ${nx.op ? `<span class="tag">${esc(opTag(nx.op))}</span>` : ""}
-        <div class="tm num">${timeHTML(nx.t, zone)}<span class="zn2">${esc(tzAbbr(zone, nx.t))} · ${esc(dayName(nx.t, zone))}</span></div>
-        <div class="oc">${esc(other.city)} ${esc(dated(nx.t, other.tz))}</div>
-        <div class="cd2 num"><i aria-hidden="true"></i><span id="fCd">in ${dur(nx.t - now)}</span></div>
+        <div class="tm num">${timeHTML(nx.t, zone)}<span class="zn2">${esc(m0.meta.join(" · "))}</span><span class="cd2 num"><i aria-hidden="true"></i><span id="fCd">in ${dur(nx.t - now)}</span></span></div>
+        <div class="oc">${esc(other.city)} ${esc(asText(o0))}</div>
       </div>
       <div class="fh-bot">
-        ${pairTxt}
-        <div class="where">At ${esc((SHORT[nx.r.id] || nx.r.en).toLowerCase())}${nx.op === "Ground" ? " on the ground" : nx.op === "Plane" ? " from the plane" : ""}: over ${esc(where(at))} at ${fmtAlt(at.alt)} · ${durH(nx.t - P.dep)} in · ${Math.round(gcKm(at, F.d) * 0.621371).toLocaleString("en-US")} mi to go</div>
+        ${pairHTML}
+        <div class="where"><span class="nw">At ${esc((SHORT[nx.r.id] || nx.r.en).toLowerCase())}${nx.op === "Ground" ? " on the ground" : nx.op === "Plane" ? " from the plane" : ""}:</span> <span class="nw">over ${esc(where(at))}</span> <span class="nw">at ${fmtAlt(at.alt)}</span> · <span class="nw">${durH(nx.t - P.dep)} in</span> · <span class="nw">${Math.round(gcKm(at, F.d) * 0.621371).toLocaleString("en-US")} mi to go</span></div>
       </div>
       <canvas class="globe" id="globe" role="img" aria-label="Globe showing the route, day and night at ${timeTxt(nx.t, zone)}, and where each zman happens"></canvas>
     </div>`;
@@ -1852,12 +1863,10 @@ function flyRender() {
   const W = [];
   const win = (k, he, s0, sl, e, el2, extra) => { if (isFinite(s0) || isFinite(e)) W.push({ k, he, s: s0, sl, e, el: el2, extra }); };
   { const s0 = first("mish"), e = first("tfila", "GRA", isFinite(s0) ? s0 : -Infinity), m = first("tfila", "MGA", isFinite(s0) ? s0 : -Infinity);
-    win("Shacharis", "שחרית", s0, "misheyakir", e, "sof zman tefillah (GRA)", isFinite(m) ? `MGA: by ${timeTxt(m, zone)}` : ""); }
+    win("Shacharis", "שחרית", s0, "misheyakir", e, "sof zman tefillah (GRA)", isFinite(m) ? m : NaN); }
   { const s0 = first("mg"), e = first("shkia", "Ground", isFinite(s0) ? s0 : -Infinity); win("Mincha", "מנחה", s0, "mincha gedolah", e, "shkiah on the ground"); }
   { const s0 = first("tzeis"); win("Maariv", "מעריב", s0, "tzeis", NaN, ""); }
-  const TT = (t) => timeHTML(t, zone), DD = (t) => `<span class="wd">${esc(tzAbbr(zone, t))} · ${esc(dayName(t, zone))}</span>`;
-  const rangeH = (a2, b2) => (dayName(a2, zone) === dayName(b2, zone) ? `${TT(a2)} – ${TT(b2)}${DD(b2)}` : `${TT(a2)}${DD(a2)} – ${TT(b2)}${DD(b2)}`);
-  const rangeT = (a2, b2, zn) => (dayName(a2, zn) === dayName(b2, zn) ? `${timeTxt(a2, zn)} – ${dated(b2, zn)}` : `${dated(a2, zn)} – ${dated(b2, zn)}`);
+
   for (const w of W) {
     w.state = isFinite(w.e) && w.e <= now ? "done" : (isFinite(w.s) ? w.s <= now : now < (isFinite(w.e) ? w.e : Infinity)) ? "open" : "next";
     w.ord = { open: 0, next: 1, done: 2 }[w.state];
@@ -1865,11 +1874,14 @@ function flyRender() {
   W.sort((a2, b2) => a2.ord - b2.ord || (isFinite(a2.s) ? a2.s : a2.e) - (isFinite(b2.s) ? b2.s : b2.e));
   const card = (w) => {
     const hasS = isFinite(w.s), hasE = isFinite(w.e);
-    const v = hasS && hasE ? rangeH(w.s, w.e) : hasS ? `from ${TT(w.s)}${DD(w.s)}` : w.state === "open" ? `now – ${TT(w.e)}${DD(w.e)}` : `until ${TT(w.e)}${DD(w.e)}`;
+    const pc = clock(zone), oc = clock(other.tz);
+    const H = (t) => { const x = pc(t); return `${timeHTML(t, zone)}${x.meta.length ? `<span class="wd">${esc(x.meta.join(" · "))}</span>` : ""}`; };
+    const v = hasS && hasE ? `${H(w.s)} – ${H(w.e)}` : hasS ? `from ${H(w.s)}` : w.state === "open" ? `now – ${H(w.e)}` : `until ${H(w.e)}`;
+    const extra = isFinite(w.extra) ? `MGA: by ${asText(pc(w.extra))}` : "";
     const sub = hasS && hasE ? `${w.sl} to ${w.el}` : hasS ? `${w.sl}${w.k === "Maariv" ? "" : " · continues after landing"}` : `open from before takeoff · ends at ${w.el}`;
-    const conv = (t) => dated(t, other.tz);
-    const alt = `${other.city} ${hasS && hasE ? rangeT(w.s, w.e, other.tz) : hasS ? `from ${conv(w.s)}` : `until ${conv(w.e)}`}`;
-    return `<div class="win ${w.state}"><div class="k">${w.k}<span class="he" lang="he">${w.he}</span>${w.state === "open" ? '<span class="now">Open now</span>' : ""}</div><div class="v num">${v}</div><div class="s">${esc(sub)}${w.extra ? " · " + esc(w.extra) : ""}</div><div class="s alt2">${esc(alt)}</div></div>`;
+    const O = (t) => asText(oc(t));
+    const alt = `${other.city} ${hasS && hasE ? `${O(w.s)} – ${O(w.e)}` : hasS ? `from ${O(w.s)}` : `until ${O(w.e)}`}`;
+    return `<div class="win ${w.state}"><div class="k">${w.k}<span class="he" lang="he">${w.he}</span>${w.state === "open" ? '<span class="now">Open now</span>' : ""}</div><div class="v num">${v}</div><div class="s">${esc(sub)}${extra ? " · " + esc(extra) : ""}</div><div class="s alt2">${esc(alt)}</div></div>`;
   };
   const lead = W.filter((w) => w.state === "open");
   const shown = lead.length ? lead : W.slice(0, 1), rest = W.filter((w) => !shown.includes(w));
@@ -1891,14 +1903,15 @@ function flyRender() {
   // the list, with a break wherever the date changes in the chosen clock
   const nk = nx ? nx.r : null;
   let lastDay = "";
+  const OL = clock(other.tz);
   const list = flyEv.length ? `<div class="fly-list"><ol class="zlist">${flyEv.map((r) => {
     const end = r.dual ? Math.max(...r.dual.map((x) => x[1]).filter(isFinite)) : r.t;
     const past = end <= now, morning = r.at && solar(r.sort, r.at.lat, r.at.lng).ha < 0;
-    const dn = dayName(r.sort, zone), sep = dn !== lastDay ? `<li class="dsep">${esc(dn)}</li>` : "";
-    lastDay = dn;
-    const oth = `<span class="alt2">${esc(apCode(other))} ${esc(dated(r.sort, other.tz))}</span>`;
+    const dn = dayName(r.sort, zone), key = dn + tzAbbr(zone, r.sort), sep = key !== lastDay ? `<li class="dsep">${esc(dn)} · ${esc(tzAbbr(zone, r.sort))}</li>` : "";
+    lastDay = key;
+    const oth = r.dual ? "" : `<span class="alt2">${esc(apCode(other))} ${esc(asText(OL(r.sort)))}</span>`;
     const time = r.dual
-      ? `<div class="zt dual num">${r.dual.filter((x) => isFinite(x[1])).sort((a2, b2) => (a2[0] === "Plane") - (b2[0] === "Plane")).map(([op, t]) => `<div><span class="op">${op}</span>${timeHTML(t, zone)}${dayName(t, zone) !== dn ? `<span class="wd">${esc(dayName(t, zone))}</span>` : ""}<span class="alt2 in">${esc(apCode(other))} ${esc(dated(t, other.tz))}</span></div>`).join("")}</div>`
+      ? `<div class="zt dual num">${r.dual.filter((x) => isFinite(x[1])).sort((a2, b2) => (a2[0] === "Plane") - (b2[0] === "Plane")).map(([op, t]) => `<div><span class="op">${op}</span>${timeHTML(t, zone)}${dayName(t, zone) !== dn ? `<span class="wd">${esc(dayName(t, zone))}</span>` : ""}<span class="alt2 in">${esc(apCode(other))} ${esc(asText(OL(t)))}</span></div>`).join("")}</div>`
       : `<div class="zt num">${timeHTML(r.t, zone)}${oth}</div>`;
     const note = [r.note, `over ${where(r.at)}`, fmtAlt(r.at.alt)].filter(Boolean).join(" · ");
     return `${sep}<li class="z${past ? " past" : ""}${r === nk ? " next" : ""}" style="--rail:${skyCol(r.sunEl, morning)}"><span class="dot" aria-hidden="true"></span>
