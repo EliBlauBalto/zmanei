@@ -48,7 +48,7 @@ body[data-phase="day"]{--glow:rgba(255,226,170,.20)}
 body{--earth1:#2E3346;--earth2:#12141E;--hglow:rgba(255,236,200,.3)}
 body[data-phase="night"]{--earth1:#121624;--earth2:#05070D;--hglow:rgba(130,150,230,.16)}
 body[data-phase="dawn"]{--earth1:#3A3040;--earth2:#141018;--hglow:rgba(255,172,128,.55)}
-body[data-phase="day"]{--earth1:#3A4744;--earth2:#161C1C;--hglow:rgba(255,240,210,.32)}
+body[data-phase="day"]{--earth1:#4A4A3C;--earth2:#1B1C17;--hglow:rgba(255,240,210,.32);--ridge:.8}
 body[data-phase="dusk"]{--earth1:#3C2E36;--earth2:#150F15;--hglow:rgba(255,160,110,.55)}
 body[data-phase="still"]{--earth1:#30364D;--earth2:#12152A;--hglow:rgba(200,210,255,.18)}
 body[data-phase="dawn"],body[data-phase="dusk"]{--glow:rgba(255,178,120,.26)}
@@ -83,12 +83,15 @@ a{color:var(--accent)}
   transform:translateX(-100%);opacity:0;z-index:5}
 .sky.busy::before{opacity:1;animation:load 1.1s ease-in-out infinite}
 @keyframes load{to{transform:translateX(100%)}}
-@media (max-width:999px){.sky::after{content:"";position:absolute;inset:auto 0 0;height:64px;pointer-events:none;
-  background:linear-gradient(to bottom,transparent,color-mix(in srgb,var(--earth2) 55%,var(--paper)) 55%,var(--paper))}}
+@media (max-width:999px){
+  .sky{padding-bottom:46px!important}
+  main{position:relative;z-index:2;margin-top:-26px!important;padding-top:0!important}
+  main>.panel:first-child{box-shadow:0 -8px 24px rgba(4,8,24,.18)}
+}
 @media (min-width:1000px){
   .app{display:grid;grid-template-columns:minmax(440px,46%) minmax(0,1fr)}
   .sky{position:sticky;top:0;height:100vh;height:100dvh;display:flex;flex-direction:column}
-  .stage-wrap{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center;padding-bottom:5vh}
+  .stage-wrap{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center;padding:9vh 0 2vh}
   main{background:linear-gradient(180deg,color-mix(in srgb,var(--sky2) 9%,transparent),transparent 380px)}
   .stage{max-width:min(720px,calc((100dvh - 300px)*1.45))}
 }
@@ -527,11 +530,11 @@ details.how p{margin:8px 0 0;font-size:13px;color:var(--faint);line-height:1.65}
         </defs>
         <g id="stars" style="opacity:var(--stars);transition:opacity 1s"></g>
         <defs>
-          <linearGradient id="ground" x1="0" y1="190" x2="0" y2="700" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:var(--earth1)"/><stop offset="1" style="stop-color:var(--earth2)"/></linearGradient>
+          <linearGradient id="ground" x1="0" y1="190" x2="0" y2="340" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:var(--earth1)"/><stop offset="1" style="stop-color:var(--earth2)"/></linearGradient>
           <linearGradient id="hglow" x1="0" y1="180" x2="0" y2="216" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:var(--hglow);stop-opacity:0"/><stop offset=".7" style="stop-color:var(--hglow)"/><stop offset="1" style="stop-color:var(--hglow);stop-opacity:0"/></linearGradient>
         </defs>
         <rect x="-700" y="180" width="1800" height="36" fill="url(#hglow)"/>
-        <path id="ridge" fill="var(--earth1)" opacity=".55"/>
+        <path id="ridge" style="fill:var(--earth1);opacity:var(--ridge,.55)"/>
         <path id="land" fill="url(#ground)"/>
         <line x1="-700" y1="205" x2="1100" y2="205" stroke="#fff" stroke-opacity=".35" stroke-width="1"/>
         <path id="arcTw" fill="none" stroke="#fff" stroke-opacity=".3" stroke-width="1.2" stroke-dasharray="1.5 4"/>
@@ -977,7 +980,7 @@ function drawDial(data, rows, now, live) {
   }
   dialLabel(null);
   $("#domeHint").hidden = !live || store.get("domeUsed", false);
-  $("#domeHint").textContent = COARSE ? "Tap a mark on the arc to find its zman" : "Point at a mark on the arc, or Tab to it and use the arrow keys";
+  $("#domeHint").textContent = COARSE ? "Tap a mark on the arc to find it in the list" : "Hover or tap a mark on the arc to find it in the list";
 }
 function dialLabel(P) {            // a label on the dome for the zman you're pointing at (the core already names the next one)
   const g = $("#dlbl");
@@ -1322,13 +1325,17 @@ document.addEventListener("click", (e) => { if (e.target.closest("[data-retry]")
 let rollAt = 0, rollWait = 30000;
 setInterval(() => {
   if (!S.data) return;
-  if (!S.date && S.data.D !== today() && Date.now() > rollAt && !sky.classList.contains("busy")) {   // past midnight: relabel now, then roll over, backing off
-    if (!S.staleShown) { S.staleShown = true; renderStatic(); }
+  const stale = !S.date && S.data.D !== today();
+  if (stale && !S.staleShown) { S.staleShown = true; renderStatic(); }          // relabel at once, whatever the network is doing
+  if (stale && Date.now() > rollAt && !sky.classList.contains("busy")) {         // then roll over, backing off
     rollAt = Date.now() + rollWait; rollWait = Math.min(rollWait * 2, 15 * 60000); refresh();
   }
   renderLive(false);
 }, 1000);
-document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible" && S.data) { if (!S.date && S.data.D !== today()) refresh(); else renderLive(true); } });
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState !== "visible" || !S.data) return;
+  if (!S.date && S.data.D !== today()) { S.staleShown = true; renderStatic(); refresh(); } else renderLive(true);
+});
 
 /* ---------- list <-> dome, opinions, share ---------- */
 const zl = $("#zlist");
@@ -1779,7 +1786,8 @@ function flyStatus() {                // one honest line about where the positio
 }
 function flyZoneSeg() {
   const now = Date.now();
-  const opts = [["phone", `Device · ${tzAbbr(browserTz(), now)}`], ["o", `${apCode(F.o)} · ${tzAbbr(F.o.tz, now)}`], ["d", `${apCode(F.d)} · ${tzAbbr(F.d.tz, now)}`]];
+  const at = flyPath ? (flyPath.dep + flyPath.arr) / 2 : now;      // name each clock as it reads during the flight
+  const opts = [["phone", `Device · ${tzAbbr(browserTz(), at)}`], ["o", `${apCode(F.o)} · ${tzAbbr(F.o.tz, at)}`], ["d", `${apCode(F.d)} · ${tzAbbr(F.d.tz, at)}`]];
   const cur = S.set.flyZone || "phone";
   $("#zoneSeg").innerHTML = opts.map(([k, l]) => `<button type="button" data-z="${k}" aria-pressed="${cur === k}">${esc(l)}</button>`).join("");
 }
@@ -1790,7 +1798,7 @@ function flyRender() {
   if (step === "find") return;
   if (step === "confirm") { flyConfirmFill(); return; }
   flyCalc(false);
-  const P = flyPath, now = Date.now(), zone = flyZone(), flat = flyFlat(), zab = tzAbbr(zone, now);
+  const P = flyPath, now = Date.now(), zone = flyZone(), flat = flyFlat();
   const wd = (t, zn) => new Date(t).toLocaleDateString("en-US", { timeZone: zn, weekday: "short" });
   $("#fSum").innerHTML = `<b>${esc(F.q)} · ${esc(apCode(F.o))} → ${esc(apCode(F.d))}</b>${wd(P.dep, F.o.tz)} ${timeTxt(P.dep, F.o.tz)} → ${wd(P.arr, F.d.tz)} ${timeTxt(P.arr, F.d.tz)}${F.useEst && !P.eta ? " (estimated)" : ""} · each airport's local time`;
   flyDlg.style.setProperty("--shh", $(".sh-h", flyDlg).offsetHeight + "px");
@@ -1813,16 +1821,16 @@ function flyRender() {
     if (twin) {
       const pl = nx.op === "Plane" ? nx.t : twin[1], gr = nx.op === "Ground" ? nx.t : twin[1], m = Math.round(Math.abs(pl - gr) / 6e4);
       const sets = nx.r.id === "shkia";
-      const dayDiff = dayName(twin[1], zone) !== dayName(nx.t, zone) ? ` ${dayName(twin[1], zone)}` : "";
-      pairTxt = `<div class="pair">${esc(opTag(twin[0]))}: <b class="num">${timeTxt(twin[1], zone)}</b>${esc(dayDiff)} <small class="oc">· ${esc(other.city)} ${timeTxt(twin[1], other.tz)} ${wd(twin[1], other.tz)}</small><span>At ${fmtAlt(at.alt)} you see the sun ${sets ? "set" : "rise"} ${m} minute${m === 1 ? "" : "s"} ${sets ? "later" : "earlier"} than the ground below.</span></div>`;
+      const dayDiff = dayName(twin[1], zone) !== dayName(nx.t, zone) ? `, ${dayName(twin[1], zone)}` : "";
+      pairTxt = `<div class="pair">${esc(opTag(twin[0]))}: <b class="num">${timeTxt(twin[1], zone)}</b>${esc(dayDiff)} <small class="oc">· ${esc(other.city)} ${timeTxt(twin[1], other.tz)}, ${esc(dayName(twin[1], other.tz))}</small><span>At ${fmtAlt(at.alt)} you see the sun ${sets ? "set" : "rise"} ${m} minute${m === 1 ? "" : "s"} ${sets ? "later" : "earlier"} than the ground below.</span></div>`;
     }
     hero = `<div class="fly-hero" style="--h1:${c[0]};--h2:${c[1]}">
       <div class="fh-top">
         <div class="eyebrow">${now < P.dep ? `First zman · takeoff in ${durH(P.dep - now)}` : "Next zman"} · ${liveFix ? "live" : "projected"}</div>
         <div class="nm">${esc(nx.r.en)}<span class="he" lang="he">${esc(nx.r.he)}</span></div>
         ${nx.op ? `<span class="tag">${esc(opTag(nx.op))}</span>` : ""}
-        <div class="tm num">${timeHTML(nx.t, zone)}<span class="zn2">${esc(zab)} · ${esc(dayName(nx.t, zone))}</span></div>
-        <div class="oc">${esc(other.city)}: ${timeTxt(nx.t, other.tz)} ${wd(nx.t, other.tz)}</div>
+        <div class="tm num">${timeHTML(nx.t, zone)}<span class="zn2">${esc(tzAbbr(zone, nx.t))} · ${esc(dayName(nx.t, zone))}</span></div>
+        <div class="oc">${esc(other.city)}: ${timeTxt(nx.t, other.tz)} · ${esc(tzAbbr(other.tz, nx.t))} · ${esc(dayName(nx.t, other.tz))}</div>
       </div>
       <div class="fh-bot">
         ${pairTxt}
@@ -1882,9 +1890,10 @@ function flyRender() {
     const past = end <= now, morning = r.at && solar(r.sort, r.at.lat, r.at.lng).ha < 0;
     const dn = dayName(r.sort, zone), sep = dn !== lastDay ? `<li class="dsep">${esc(dn)}</li>` : "";
     lastDay = dn;
-    const oth = `<span class="alt2">${esc(apCode(other))} ${wd(r.sort, other.tz)} ${timeTxt(r.sort, other.tz)}</span>`;
+    const odate = (t) => (dayName(t, other.tz) !== dn ? `, ${dayName(t, other.tz)}` : "");
+    const oth = `<span class="alt2">${esc(apCode(other))} ${timeTxt(r.sort, other.tz)}${esc(odate(r.sort))}</span>`;
     const time = r.dual
-      ? `<div class="zt dual num">${r.dual.filter((x) => isFinite(x[1])).sort((a2, b2) => a2[1] - b2[1]).map(([op, t]) => `<div><span class="op">${op}</span>${timeHTML(t, zone)}${dayName(t, zone) !== dn ? `<span class="wd">${wd(t, zone)}</span>` : ""}<span class="alt2 in">${esc(apCode(other))} ${wd(t, other.tz)} ${timeTxt(t, other.tz)}</span></div>`).join("")}</div>`
+      ? `<div class="zt dual num">${r.dual.filter((x) => isFinite(x[1])).sort((a2, b2) => a2[1] - b2[1]).map(([op, t]) => `<div><span class="op">${op}</span>${timeHTML(t, zone)}${dayName(t, zone) !== dn ? `<span class="wd">${esc(dayName(t, zone))}</span>` : ""}<span class="alt2 in">${esc(apCode(other))} ${timeTxt(t, other.tz)}${esc(odate(t))}</span></div>`).join("")}</div>`
       : `<div class="zt num">${timeHTML(r.t, zone)}${oth}</div>`;
     const note = [r.note, `over ${where(r.at)}`, fmtAlt(r.at.alt)].filter(Boolean).join(" · ");
     return `${sep}<li class="z${past ? " past" : ""}${r === nk ? " next" : ""}" style="--rail:${skyCol(r.sunEl, morning)}"><span class="dot" aria-hidden="true"></span>
@@ -1991,7 +2000,7 @@ function drawGlobe(cv, P, tSun, nx) {
     const cc = Math.asin(Math.min(1, rho)), sc = Math.sin(cc), co = Math.cos(cc);
     const lat = Math.asin(co * sf0 + (rho ? (y * sc * cf0) / rho : 0)) * R2D;
     const lng = (l0 + Math.atan2(x * sc, rho * cf0 * co - y * sf0 * sc)) * R2D;
-    const el = solar(tSun, lat, lng).el, a = el > 0 ? 0 : el > -18 ? (-el / 18) * 0.7 : 0.7;
+    const el = solar(tSun, lat, lng).el, a = el > 0 ? 0 : el > -18 ? (-el / 18) * 0.84 : 0.84;
     const k = (jy * n + ix) * 4;
     im.data[k] = 5; im.data[k + 1] = 9; im.data[k + 2] = 32; im.data[k + 3] = a * 255;
   }
@@ -2032,16 +2041,25 @@ function drawGlobe(cv, P, tSun, nx) {
     if (al === "left" && lx + tw > size - 2) { al = "right"; lx = x - 9; }
     if (al === "right" && lx - tw < 2) { al = "left"; lx = x + 9; }
     if (al === "center") lx = Math.max(2 + tw / 2, Math.min(size - 2 - tw / 2, lx));
+    if (planeAt) {                                         // still on the plane after the edge check: go above or below the airport
+      const cxl = al === "left" ? lx + tw / 2 : al === "right" ? lx - tw / 2 : lx;
+      if (Math.hypot(planeAt[0] - cxl, planeAt[1] - ly) < 16) { al = "center"; lx = Math.max(2 + tw / 2, Math.min(size - 2 - tw / 2, x)); ly = planeAt[1] > y ? y - 10 : y + 11; }
+    }
     g.textAlign = al;
     g.fillStyle = "rgba(255,255,255,.95)"; g.shadowColor = "rgba(0,0,0,.5)"; g.shadowBlur = 3; g.fillText(apCode(a), lx, ly); g.shadowBlur = 0;
   }
   if (planeAt) {                       // a small plane, pointing along the route, with a halo
     const [x, y] = planeAt, q2 = P.posAt(Math.min(P.arr, now + 20 * MIN)), [x2, y2] = proj(q2.lat, q2.lng);
     const ang = Math.atan2(y2 - y, x2 - x);
-    g.beginPath(); g.arc(x, y, 9, 0, Math.PI * 2); g.fillStyle = "rgba(255,255,255,.18)"; g.fill();
+    g.beginPath(); g.arc(x, y, 10, 0, Math.PI * 2); g.fillStyle = "rgba(255,255,255,.16)"; g.fill();
     g.save(); g.translate(x, y); g.rotate(ang);
-    g.beginPath(); g.moveTo(6, 0); g.lineTo(-4, -4.5); g.lineTo(-2, 0); g.lineTo(-4, 4.5); g.closePath();
-    g.fillStyle = "#fff"; g.shadowColor = "rgba(0,0,0,.4)"; g.shadowBlur = 3; g.fill();
+    g.beginPath();                                        // fuselage, swept wings, tailplane (nose along +x)
+    g.moveTo(7.5, 0); g.quadraticCurveTo(7, -1.1, 5, -1.1); g.lineTo(1.2, -1.1); g.lineTo(-2.2, -6.5); g.lineTo(-3.6, -6.5); g.lineTo(-1.6, -1.1);
+    g.lineTo(-5, -1.1); g.lineTo(-6.6, -3.4); g.lineTo(-7.6, -3.4); g.lineTo(-6.6, 0);
+    g.lineTo(-7.6, 3.4); g.lineTo(-6.6, 3.4); g.lineTo(-5, 1.1); g.lineTo(-1.6, 1.1); g.lineTo(-3.6, 6.5); g.lineTo(-2.2, 6.5); g.lineTo(1.2, 1.1);
+    g.lineTo(5, 1.1); g.quadraticCurveTo(7, 1.1, 7.5, 0); g.closePath();
+    g.lineJoin = "round"; g.lineWidth = 1.6; g.strokeStyle = "rgba(6,10,30,.75)"; g.stroke();
+    g.fillStyle = "#fff"; g.fill();
     g.restore();
   }
   g.restore();
