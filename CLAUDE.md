@@ -4,9 +4,11 @@ Eli's personal zmanim site: a calmer replacement for myzmanim.com. **Not Gourmet
 the bot, the estate's scheduled tasks or any GG system, and none of their rules about stores apply. The general git
 rules in `C:\Users\EliBlau\.claude\CLAUDE.md` still apply (author, explicit staging, no `push -q`, the `0 0` check).
 
-- Live: https://eliblaubalto.github.io/zmanei/ (temporary home; GitHub Pages)
+- Live: **https://zmanei.vercel.app** (Vercel, Eli's personal hobby account, project `zmanei`). GitHub Pages copy still
+  up at https://eliblaubalto.github.io/zmanei/ (no live ADS-B there: Pages can't run `api/`).
 - Repo: https://github.com/EliBlauBalto/zmanei (public, branch `main`). Local: `C:\Users\EliBlau\zmanei`
-- **A push to `main` is a deploy.** Pages rebuilds in about a minute. Check with
+- **A push to `main` is a deploy** to both Vercel (Git-connected, about 15 s) and Pages (about a minute). Check with
+  `npx vercel ls zmanei --scope eliblaubaltos-projects` (top row `Ready`) and
   `gh api repos/EliBlauBalto/zmanei/pages/builds/latest --jq '.status + " " + .commit'`.
 - Git author: `eliblau13@gmail.com` (set in this repo's local config).
 
@@ -77,17 +79,13 @@ Candle minutes: "Local custom" sends no `b`, so Hebcal applies its own city rule
 - Default location is Cedarhurst (geonameid 5111974) until the visitor picks one.
 
 ## Hosting history and options
-- **Eli wants Vercel, not GitHub Pages (6 Nov).** Pages stays live until Vercel is set up. The claude.ai Vercel connector
-  authenticates as `eliblaubalto` but still 403s on team scope `eliblaubaltos-projects`. A Vercel CLI device login was
-  started on 6 Nov (`npx vercel login`) for Eli to approve. Once logged in: `vercel link` + connect the GitHub repo,
-  deploy to `zmanei.vercel.app`, then the live ADS-B proxy (`api/adsb.js`) starts working.
-- Vercel was the first choice (Eli's personal account `eliblau13@gmail.com`, username `eliblaubalto`, hobby plan,
-  team `team_MKmZKzcoB51pzkJEimW21kwR` = scope `eliblaubaltos-projects`). The claude.ai Vercel connector returned
-  **403: not authorized for that scope**, and the Vercel CLI isn't installed/logged in on the dev box. To move to
-  Vercel: grant the connector access to that team (Vercel consent screen), or `npx vercel login`, then import the repo.
-  `zmanei.vercel.app` was free on 6 Nov.
+- **Moved to Vercel on 6 Nov** at Eli's request ("vercel domain, not GitHub"). Account `eliblaubalto`
+  (eliblau13@gmail.com), hobby plan, scope `eliblaubaltos-projects` (team `team_MKmZKzcoB51pzkJEimW21kwR`), project
+  `zmanei`, Git-connected to this repo. The CLI on the dev box is logged in (device login Eli approved from his phone);
+  `.vercel/` and `.env.local` (an OIDC token) are gitignored and must never be committed or printed.
+- The claude.ai Vercel connector still 403s on that team scope; use the CLI (`npx vercel ...`) instead.
 - GitHub Pages on a private repo isn't on Eli's plan, so the repo was made public (static code, no secrets).
-- When Eli picks a real domain: add a `CNAME` file and set the DNS, or move to Vercel and attach it there.
+- When Eli picks a real domain: attach it to the `zmanei` Vercel project (`npx vercel domains add`), then set DNS.
 
 ## Checking a change
 1. Syntax: extract the script and `node --check` it:
@@ -96,7 +94,8 @@ Candle minutes: "Local custom" sends no `b`, so Hebcal applies its own city rule
    `"/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe" --headless=new --disable-gpu --hide-scrollbars --user-data-dir="$TEMP/edge" --window-size=1280,1500 --virtual-time-budget=8000 --screenshot="$TEMP/shot.png" "file:///C:/Users/EliBlau/zmanei/index.html"`
    Headless Edge on Windows won't go narrower than about 500px, so a 400px shot is cropped, not overflowing.
    Add `--blink-settings=preferredColorScheme=1` for light mode.
-3. Push, wait for the Pages build to show `built <sha>`, load the live URL.
+3. Push, wait for Vercel `Ready` (and Pages `built <sha>`), load https://zmanei.vercel.app. Live proxy check:
+   `curl "https://zmanei.vercel.app/api/adsb?callsign=JBU337"` (any airborne callsign).
 
 ## Open items / ideas (none promised to Eli yet)
 - Real phone test (iPhone Safari, add to home screen) has not been done; only headless desktop/400px renders.
