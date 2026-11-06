@@ -14,7 +14,7 @@ self.addEventListener("fetch", (e) => {
   const u = new URL(r.url);
   if (u.pathname.includes("/api/")) return;                       // live data is never served stale
   const ours = u.origin === self.location.origin;
-  const keep = ours || /(^|\.)fonts\.(googleapis|gstatic)\.com$/.test(u.hostname) || SLOW.has(u.hostname);
+  const keep = ours || /(^|\.)fonts\.(googleapis|gstatic)\.com$/.test(u.hostname) || u.hostname === "cdn.jsdelivr.net" || SLOW.has(u.hostname);
   if (!keep) return;
   const cached = () => caches.match(r, { ignoreSearch: ours && r.mode === "navigate" }).then((m) => m || (r.mode === "navigate" ? caches.match("./") : null));
   const net = fetch(r).then((res) => {
