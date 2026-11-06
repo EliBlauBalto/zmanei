@@ -750,10 +750,21 @@ function parts(t, zone = tz()) {
 }
 const timeHTML = (t, zone) => { const p = parts(t, zone); return `${p.hm}${p.ap ? `<span class="ampm">${p.ap}</span>` : ""}`; };
 const timeTxt = (t, zone) => { const p = parts(t, zone); return p.hm + (p.ap ? " " + p.ap : ""); };
+function zoneOff(zone, t) {             // minutes east of UTC at instant t
+  try {
+    const p = {};
+    for (const x of new Intl.DateTimeFormat("en-US", { timeZone: zone, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).formatToParts(new Date(t))) p[x.type] = x.value;
+    return Math.round((Date.UTC(+p.year, p.month - 1, +p.day, +p.hour % 24, +p.minute) - Math.floor(t / 6e4) * 6e4) / 6e4);
+  } catch { return 0; }
+}
+const utcOff = (zone, t) => { const m = zoneOff(zone, t), h = Math.trunc(Math.abs(m) / 60), r = Math.abs(m) % 60; return `UTC${m >= 0 ? "+" : "−"}${h}${r ? ":" + String(r).padStart(2, "0") : ""}`; };
 const tzAbbr = (zone, t = Date.now()) => {   // "EST" where people say it; "Israel Time" where the short form is just an offset
   const f = (o) => { try { return new Intl.DateTimeFormat("en-US", { timeZone: zone, timeZoneName: o }).formatToParts(new Date(t)).find((x) => x.type === "timeZoneName").value; } catch { return ""; } };
   const sh = f("short");
-  return /^(GMT|UTC)/.test(sh) ? f("shortGeneric") || sh : sh;
+  if (!/^(GMT|UTC)/.test(sh)) return sh;                 // EST/EDT already name the offset
+  const g = f("shortGeneric") || sh, o = zoneOff(zone, t);
+  const repeated = zoneOff(zone, t - 36e5) > o || zoneOff(zone, t + 36e5) < o;   // the hour that happens twice when clocks go back
+  return repeated ? `${g} (${utcOff(zone, t)})` : g;
 };
 // Hebcal gives seconds; show minutes rounded the safe way: deadlines down, beginnings up.
 const DEADLINE = /^(sofZman|chatzot|sunset)/;
@@ -1795,20 +1806,33 @@ function flyStatus() {                // one honest line about where the positio
 function flyZoneSeg() {
   const now = Date.now();
   const gen = (zn) => { try { return new Intl.DateTimeFormat("en-US", { timeZone: zn, timeZoneName: "shortGeneric" }).formatToParts(new Date(now)).find((x) => x.type === "timeZoneName").value; } catch { return tzAbbr(zn, now); } };
-  const opts = [["phone", `Device · ${gen(browserTz())}`], ["o", `${apCode(F.o)} · ${gen(F.o.tz)}`], ["d", `${apCode(F.d)} · ${gen(F.d.tz)}`]];   // "ET", "Israel Time": true all year
-  const cur = S.set.flyZone || "phone";
+  const same = (a, b) => zoneOff(a, now) === zoneOff(b, now) && gen(a) === gen(b);
+  let opts = [["phone", `Device · ${gen(browserTz())}`], ["o", `${apCode(F.o)} · ${gen(F.o.tz)}`], ["d", `${apCode(F.d)} · ${gen(F.d.tz)}`]];
+  if (same(browserTz(), F.o.tz)) opts = [["phone", `${apCode(F.o)} · ${gen(F.o.tz)} (this device)`], opts[2]];
+  else if (same(browserTz(), F.d.tz)) opts = [["phone", `${apCode(F.d)} · ${gen(F.d.tz)} (this device)`], opts[1]];   // "ET", "Israel Time": true all year
+  let cur = S.set.flyZone || "phone";
+  if (!opts.some((o) => o[0] === cur)) cur = "phone";
   $("#zoneSeg").innerHTML = opts.map(([k, l]) => `<button type="button" data-z="${k}" aria-pressed="${cur === k}">${esc(l)}</button>`).join("");
 }
 const GPS_UI = !matchMedia("(hover: hover) and (pointer: fine)").matches;
 const stamp = (t, zn) => `${timeTxt(t, zn)} ${tzAbbr(zn, t)}`;                    // "10:48 pm Israel Time", the zone as it reads at that moment
 const dated = (t, zn) => `${stamp(t, zn)}, ${dayName(t, zn)}`;                        // "... , Fri, Nov 6"
+function zoneTag(zn, t, prevLabel, prevOff) {   // the label to print, or "" when nothing about the clock changed
+  const l = tzAbbr(zn, t), o = zoneOff(zn, t);
+  if (l === prevLabel && o === prevOff) return "";
+  return l === prevLabel ? `${l} (${utcOff(zn, t)})` : l;   // same name, new offset: show the offset
+}
 function clock(zn) {
-  let lz = "", ld = "";
-  return (t) => { const z = tzAbbr(zn, t), d = dayName(t, zn), meta = [z !== lz ? z : "", d !== ld ? d : ""].filter(Boolean); lz = z; ld = d; return { tm: timeTxt(t, zn), meta }; };
+  let lz = "", lo = null, ld = "";
+  return (t) => {
+    const z = zoneTag(zn, t, lz, lo), d = dayName(t, zn), meta = [z, d !== ld ? d : ""].filter(Boolean);
+    lz = tzAbbr(zn, t); lo = zoneOff(zn, t); ld = d;
+    return { tm: timeTxt(t, zn), meta };
+  };
 }
 function span2(t1, z1, t2, z2) {
-  const a = dated(t1, z1), zz = tzAbbr(z2, t2) !== tzAbbr(z1, t1) ? " " + tzAbbr(z2, t2) : "", dd = dayName(t2, z2) !== dayName(t1, z1) ? ", " + dayName(t2, z2) : "";
-  return [a, timeTxt(t2, z2) + zz + dd];
+  const a = dated(t1, z1), z = zoneTag(z2, t2, tzAbbr(z1, t1), zoneOff(z1, t1)), dd = dayName(t2, z2) !== dayName(t1, z1) ? ", " + dayName(t2, z2) : "";
+  return [a, timeTxt(t2, z2) + (z ? " " + z : "") + dd];
 }
 const asText = (x) => x.tm + (x.meta.length ? " " + x.meta.join(", ") : "");          // "10:52 pm Israel Time, Fri, Nov 6", then "11:03 pm"
 const opTag = (op) => ({ Plane: "From the plane", Ground: "On the ground" }[op] || op);
@@ -1922,7 +1946,7 @@ function flyRender() {
       ? `<div class="zt dual num">${r.dual.filter((x) => isFinite(x[1])).sort((a2, b2) => (a2[0] === "Plane") - (b2[0] === "Plane")).map(([op, t]) => `<div><span class="op">${op}</span>${timeHTML(t, zone)}${dayName(t, zone) !== dn ? `<span class="wd">${esc(dayName(t, zone))}</span>` : ""}<span class="alt2 in">${esc(apCode(other))} ${esc(asText(OL(t)))}</span></div>`).join("")}</div>`
       : `<div class="zt num">${timeHTML(r.t, zone)}${oth}</div>`;
     const firstOp = r.dual ? r.dual.filter((x) => isFinite(x[1])).sort((a2, b2) => a2[1] - b2[1])[0][0] : "";
-    const note = [r.note, `over ${where(r.at)}${firstOp === "Ground" || firstOp === "Plane" ? ` at the ${firstOp === "Ground" ? "ground" : "plane"} time` : ""}`, fmtAlt(r.at.alt)].filter(Boolean).join(" · ");
+    const note = [r.note, `over ${where(r.at)}${firstOp === "Ground" || firstOp === "Plane" ? ` at ${firstOp === "Ground" ? "ground" : "plane"} ${(SHORT[r.id] || r.en).toLowerCase()}` : ""}`, fmtAlt(r.at.alt)].filter(Boolean).join(" · ");
     return `${sep}<li class="z${past ? " past" : ""}${r === nk ? " next" : ""}" style="--rail:${skyCol(r.sunEl, morning)}"><span class="dot" aria-hidden="true"></span>
       <div class="zn"><span class="en">${esc(r.en)}</span><span class="he" lang="he">${esc(r.he)}</span><span class="note">${esc(note)}</span></div>${time}${r === nk ? `<span class="sr">Next</span>` : ""}</li>`;
   }).join("")}</ol></div>` : `<p class="msg">No zmanim fall between takeoff and landing on this flight.</p>`;
