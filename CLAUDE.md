@@ -60,6 +60,13 @@ The engine is between `flight-engine:start/end` markers and is pure JS (no DOM),
   chatzos, mincha, plag) are fixed points `t = zman(posAt(t))` using sea-level sunrise/sunset at that spot; chatzos
   halailah = midpoint of that spot's shkiah and next netz.
 - Netz/shkiah are shown twice: "Plane" (horizon dip at altitude, about 3.3° at 35,000 ft) and "Ground" (below).
+- UI is three steps: find (adsbdb), confirm (takeoff required; an estimated landing needs the "use the estimate"
+  checkbox; never guess an airport's time zone), results (hero with a canvas globe, open davening window first,
+  sky timeline, list). The globe draws coastlines from `world-atlas@2.0.2/land-110m.json` on jsdelivr (cached by sw.js).
+- **Clock rule** (reviewers fought hard for this): every flight time says its zone and date the first time and only
+  when either changes (`clock()`, `listClock()`, `span2()`); zone identity is the UTC offset, so a friendly name gains
+  "(UTC+3)" exactly when it can't tell two instants apart (Israel's repeated fall-back hour). The second clock is
+  always the airport the primary clock isn't (`flySide()` maps a device on an airport's time to that airport).
 - Check: a stationary 24 h "flight" at Cedarhurst (altitude 0) reproduced Hebcal `sec=1` within 1 s on every zman (6 Nov).
   Test by extracting the engine block into node (see git history of this file for the harness idea).
 
@@ -68,9 +75,18 @@ API additionally needs `geo=geoname|pos|zip`; `locQ(kind)` builds both forms. Is
 Candle minutes: "Local custom" sends no `b`, so Hebcal applies its own city rules (e.g. Jerusalem 40).
 
 ## Design decisions
-- The hero is the real sky: `body[data-phase]` = night / dawn / day / dusk from alos, netz, shkiah and 72-min tzeis,
-  and the gradient, stars and moon follow it. The hero always carries light text; the rest of the page follows the
-  viewer's light/dark theme through tokens on `:root`.
+Redesigned 6 Nov from the ground up, then looped through independent reviews (GPT-6.1 Sol and Opus 5.5, unaware of
+each other) until both scored it ≥ 9/10: round 1 7.7/7.6 → round 15 9.0/9.1.
+- The sky is the page: `body[data-phase]` = night / dawn / day / dusk (and `still` for other dates) sets `--sky1..3`
+  (registered with `@property` so they fade), `--earth1/2`, `--hglow`. The **dome** (SVG, viewBox 400×262, horizon
+  y=205) is the sun's path across the halachic day with every zman marked; the next zman and its time sit inside it
+  (`.core`, sized in `cqw`), the countdown under the horizon. Land: hills + ridges drawn in `drawBase()`.
+- Wide screens (≥1000px): the sky is a sticky left pane; content scrolls on the right. Phones: the sky is ~half a
+  screen and the first card overlaps the ground like a sheet.
+- CSS cascade trap that bit three times: the `@media (min-width:1000px)` block sits *before* some base rules, so a
+  desktop override of a later base rule needs more specificity (`.sky .stage`) or `!important`.
+- Loads are atomic: `refresh()` works on a copy of the place and date and commits only when the newest response
+  arrives; the last good day paints instantly from `localStorage` (`zm:last`); "Today" is never shown on stale data.
 - Type: Newsreader (display, the big numerals), Frank Ruhl Libre (Hebrew), Hanken Grotesk (UI).
 - The list's left rail is colored by sky phase at each zman's time (night → dawn → day → noon → dusk → night).
 - Hebrew spans are `direction:rtl`, so spacing next to them uses `margin-left`, not `margin-inline-start`.
@@ -88,6 +104,8 @@ Candle minutes: "Local custom" sends no `b`, so Hebcal applies its own city rule
 - When Eli picks a real domain: attach it to the `zmanei` Vercel project (`npx vercel domains add`), then set DNS.
 
 ## Checking a change
+0. Flight engine and clock helpers can be tested in node by extracting code between known markers (functions like
+   `zoneOff`, `tzAbbr`, `clock`, `span2`, `listClock`); swap `const` for `var` when `eval`-ing.
 1. Syntax: extract the script and `node --check` it:
    `sed -n '/<script>/,/<\/script>/p' index.html | sed '1d;$d' > "$TEMP/zm.js" && node --check "$TEMP/zm.js"`
 2. Look at it: headless Edge, no visible window:
@@ -98,6 +116,8 @@ Candle minutes: "Local custom" sends no `b`, so Hebcal applies its own city rule
    `curl "https://zmanei.vercel.app/api/adsb?callsign=JBU337"` (any airborne callsign).
 
 ## Open items / ideas (none promised to Eli yet)
-- Real phone test (iPhone Safari, add to home screen) has not been done; only headless desktop/400px renders.
-- Light theme was checked once on desktop; dark on desktop and narrow.
-- Possible next: a week view / printable month, Israel-specific defaults, a custom domain, an offline cache.
+- Real phone test (iPhone Safari, add to home screen, true 375px) has not been done; reviews used 500px headless renders.
+- No screen-reader pass; accessibility was reviewed from code.
+- Reviewers' optional polish left at the end: list each ground/plane row in time order; dim Friday's candle-lighting
+  line on the Shabbos card after it passes; keep "37,000 ft" from breaking.
+- Possible next: a week view / printable month, Israel-specific defaults, a custom domain.
