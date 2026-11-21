@@ -1,6 +1,6 @@
 // Network first with the cache as a fallback: always fresh online, and the last-seen page and times still open on a plane.
 // Slow hosts (plane wi-fi can stall a request for 30 s) get 3.5 s before a cached copy is used.
-const CACHE = "zmanei-v16";
+const CACHE = "zmanei-v17";
 const SHELL = ["./", "./index.html", "./icon.svg", "./apple-touch-icon.png", "./manifest.webmanifest"];
 const SLOW = new Set(["www.hebcal.com", "api.open-meteo.com", "geocoding-api.open-meteo.com"]);
 
@@ -16,7 +16,7 @@ self.addEventListener("fetch", (e) => {
   const ours = u.origin === self.location.origin;
   const keep = ours || /(^|\.)fonts\.(googleapis|gstatic)\.com$/.test(u.hostname) || u.hostname === "cdn.jsdelivr.net" || SLOW.has(u.hostname);
   if (!keep) return;
-  const cached = () => caches.match(r, { ignoreSearch: ours && r.mode === "navigate" }).then((m) => m || (r.mode === "navigate" ? caches.match("./") : null));
+  const cached = () => caches.match(r, { ignoreSearch: ours && r.mode === "navigate" }).then((m) => m || (r.mode === "navigate" ? (/\/nosson\/?$/i.test(u.pathname) ? caches.match("./Nosson/index.html").then((n) => n || caches.match("./Nosson")) : caches.match("./")) : null));
   const net = fetch(r).then((res) => {
     if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(r, copy)); }
     return res;

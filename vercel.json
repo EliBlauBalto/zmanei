@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/Nosson", "destination": "/Nosson/index.html" },
+    { "source": "/Nosson/", "destination": "/Nosson/index.html" },
+    { "source": "/nosson", "destination": "/Nosson/index.html" },
+    { "source": "/nosson/", "destination": "/Nosson/index.html" }
+  ]
+}
